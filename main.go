@@ -33,6 +33,6 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-	log.Println("Started Listening on Port : 8080")
+	log.Println("Started Listening on Port : 8000")
 	log.Fatal(srv.ListenAndServe())
 }
