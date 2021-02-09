@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom';
 import Page from './page'
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Page />
-  </React.StrictMode>,
+  <Page />,
   document.getElementById('root')
 );

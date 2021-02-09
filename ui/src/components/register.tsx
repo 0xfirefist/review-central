@@ -10,6 +10,20 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { gql, useMutation } from '@apollo/client';
+
+const REGISTER = gql`
+  mutation CreateUser($firstName: String!, $middleName: String!, $lastName: String!, $email: String!, $password: String!, $number: String!) {
+    createUser(input: {
+      firstName: $firstName,
+      middleName: $middleName,
+      lastName: $lastName,
+      email: $email,
+      password: $password,
+      number: $number})
+    }
+`;
+
 
 function Copyright() {
   return (
@@ -50,6 +64,20 @@ interface loginprop {
 
 function Register(props: loginprop) {
   const classes = useStyles();
+  
+  const [register, { data }] = useMutation(REGISTER);
+  register({
+    variables: {
+      firstName: "dev", 
+      middleName: "", 
+      lastName: "kalra", 
+      email: "dev10kalra@gmail.com", 
+      password: "asdf", 
+      number: "8827532216"
+    }
+  })
+  console.log(data)
+
 
   return (
     <Container component="main" maxWidth="xs">

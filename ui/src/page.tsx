@@ -1,6 +1,13 @@
 import Login from './components/login'
 import Register from './components/register'
 import { useState } from 'react'
+import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+
+const client = new ApolloClient({
+  uri: 'http://localhost:8000/graphql',
+  cache: new InMemoryCache()
+});
+
 
 function Page() {
     const [login, setLogin] = useState('login')
@@ -13,15 +20,17 @@ function Page() {
     }
 
     return (
-        <div>
-            { login === 'login' && (
-                <Login toggle={triggerLoginState} />
-            )}
+        <ApolloProvider client={client}>
+            <div>
+                { login === 'login' && (
+                    <Login toggle={triggerLoginState} />
+                )}
 
-            { login === 'register' && (
-                <Register toggle={triggerLoginState} />
-            )}
-        </div>
+                { login === 'register' && (
+                    <Register toggle={triggerLoginState} />
+                )}
+            </div>
+        </ApolloProvider>
     )
 }
 
