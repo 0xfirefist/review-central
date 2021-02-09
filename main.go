@@ -7,6 +7,7 @@ import (
 
 	mux "github.com/gorilla/mux"
 	server "github.com/kalradev/review-central/graphql-server"
+	auth "github.com/kalradev/review-central/internal/auth"
 )
 
 const (
@@ -16,7 +17,7 @@ const (
 
 func main() {
 	router := mux.NewRouter()
-
+	router.Use(auth.Middleware())
 	// graphql server
 	router.Handle(graphqlEndpoint, server.GetGraphQLHandler())
 	// graphql playground to test API
