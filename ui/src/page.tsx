@@ -1,8 +1,7 @@
 import Login from './components/login'
 import Register from './components/register'
 import User from './components/user'
-import {BrowserRouter as Router,Switch,Route} from 'react-router-dom'
-import { useState } from 'react'
+import {HashRouter, Route, Switch} from 'react-router-dom'
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 
 const client = new ApolloClient({
@@ -13,25 +12,16 @@ const client = new ApolloClient({
 
 
 function Page() {
-    const [login, setLogin] = useState('login')
-    
-
     return (
-        <Router>
-        <div>
-        <Switch>
-            <Route path='/login'>
-                <Login />
-            </Route>
-            <Route path='/register'>
-                <Register />
-            </Route>
-            <Route path='/'>
-                <User />
-            </Route>
-        </Switch>
-        </div>
-        </Router>
+        <ApolloProvider client={client}>
+            <HashRouter>
+                <Switch>
+                    <Route exact path='/' component={User}/>
+                    <Route exact path='/login' component={Login}/>
+                    <Route exact path='/register' component={Register}/>
+                </Switch>
+            </HashRouter>
+        </ApolloProvider>
     )
 }
 

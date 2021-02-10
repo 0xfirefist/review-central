@@ -1,8 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Page from './page'
+import Page from './page';
+import { CookiesProvider } from "react-cookie";
 
 ReactDOM.render(
-  <Page />,
+  <CookiesProvider>    
+    <Page />
+  </CookiesProvider>,
   document.getElementById('root')
 );
