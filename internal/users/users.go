@@ -12,7 +12,12 @@ type User struct {
 	Number     string `json:"number"`
 }
 
-var users []*User
+var users = []*User{
+	&User{
+		Email:    "asdf@asdf.com",
+		Password: "asdf@asdf.com",
+	},
+}
 
 // Create - add user to the database
 func (user *User) Create() {
