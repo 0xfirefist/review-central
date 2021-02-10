@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -47,12 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface loginprop {
-  toggle: any;
-}
-
-
-function Login(props: loginprop) {
+function Login() {
   const classes = useStyles();
 
   return (
@@ -108,7 +104,7 @@ function Login(props: loginprop) {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2" onClick={props.toggle}>
+              <Link href="/register" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>
