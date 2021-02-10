@@ -44,11 +44,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface loginprop {
-  toggle: any;
-}
 
-function Register(props: loginprop) {
+function Register() {
   const classes = useStyles();
 
   return (
@@ -63,7 +60,7 @@ function Register(props: loginprop) {
         </Typography>
         <form className={classes.form} noValidate>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <TextField
                 autoComplete="fname"
                 name="firstName"
@@ -75,7 +72,18 @@ function Register(props: loginprop) {
                 autoFocus
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="MiddleName"
+                label="Middle Name"
+                name="middleName"
+                autoComplete="mname"
+              />
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 variant="outlined"
                 required
@@ -132,8 +140,8 @@ function Register(props: loginprop) {
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href="#" variant="body2" onClick={props.toggle}>
-                Already have an account? Sign in
+              <Link href="/login" variant="body2">
+              Already have an account? Sign in
               </Link>
             </Grid>
           </Grid>
