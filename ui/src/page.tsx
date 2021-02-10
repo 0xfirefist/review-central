@@ -1,5 +1,6 @@
 import Login from './components/login'
 import Register from './components/register'
+import User from './components/user'
 import {BrowserRouter as Router,Switch,Route} from 'react-router-dom'
 import { useState } from 'react'
 
@@ -18,7 +19,7 @@ function Page() {
                 <Register />
             </Route>
             <Route path='/'>
-                <Login />
+                <User />
             </Route>
         </Switch>
         </div>
