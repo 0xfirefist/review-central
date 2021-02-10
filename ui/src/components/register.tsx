@@ -25,6 +25,7 @@ const REGISTER = gql`
 `;
 
 
+
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
@@ -64,20 +65,25 @@ interface loginprop {
 
 function Register(props: loginprop) {
   const classes = useStyles();
-  
-  const [register, { data }] = useMutation(REGISTER);
-  register({
-    variables: {
-      firstName: "dev", 
-      middleName: "", 
-      lastName: "kalra", 
-      email: "dev10kalra@gmail.com", 
-      password: "asdf", 
-      number: "8827532216"
+  const [register] = useMutation(REGISTER, {
+    onCompleted(data) {
+      localStorage.setItem("token",data.createUser)
     }
-  })
-  console.log(data)
+  });
 
+  const handleSubmit = (event: any) => {
+    event.preventDefault()
+    register({
+      variables: {
+        firstName: event.target.firstName.value,
+        middleName: "",
+        lastName: event.target.lastName.value,
+        email: event.target.email.value,
+        password: event.target.password.value,
+        number: event.target.number.value
+      }
+    })
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -89,7 +95,7 @@ function Register(props: loginprop) {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
