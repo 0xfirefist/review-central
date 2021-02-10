@@ -13,6 +13,17 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { gql, useMutation } from '@apollo/client';
+import { useCookies } from "react-cookie";
+
+const LOGIN = gql`
+  mutation Login($email: String!, $password: String!) {
+      login(input: {
+        email: $email,
+        password: $password
+      })
+    }
+`;
 
 function Copyright() {
   return (
@@ -49,6 +60,28 @@ const useStyles = makeStyles((theme) => ({
 
 function Login() {
   const classes = useStyles();
+  const [_, setCookie] = useCookies(["user"]);
+
+  const [login] = useMutation(LOGIN, {
+    onCompleted(data) {
+      // localStorage.setItem("token",data.createUser)
+      setCookie("user", data.login, {      
+        path: "/",
+        // secure: true
+        sameSite: 'strict'
+      });
+    }
+  });
+
+  const handleSubmit = (event: any) => {
+    event.preventDefault()
+    login({
+      variables: {
+        email: event.target.email.value,
+        password: event.target.password.value
+      }
+    })
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -60,7 +93,7 @@ function Login() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={handleSubmit}>
           <TextField
             variant="outlined"
             margin="normal"

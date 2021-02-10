@@ -63,7 +63,7 @@ const useStyles = makeStyles((theme) => ({
 
 function Register() {
   const classes = useStyles();
-  const [cookies, setCookie] = useCookies(["user"]);
+  const [_, setCookie] = useCookies(["user"]);
 
   const [register] = useMutation(REGISTER, {
     onCompleted(data) {
