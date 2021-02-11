@@ -1,27 +1,27 @@
 import Login from './components/login'
 import Register from './components/register'
-import { useState } from 'react'
+import User from './components/user'
+import {HashRouter, Route, Switch} from 'react-router-dom'
+import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+
+const client = new ApolloClient({
+  uri: 'http://localhost:8000/graphql',
+  cache: new InMemoryCache(),
+  headers: {    authorization: localStorage.getItem('token') || '',  }
+});
+
 
 function Page() {
-    const [login, setLogin] = useState('login')
-
-    const triggerLoginState = () => {
-        if (login === 'login')
-            setLogin('register')
-        else
-            setLogin('login')
-    }
-
     return (
-        <div>
-            { login === 'login' && (
-                <Login toggle={triggerLoginState} />
-            )}
-
-            { login === 'register' && (
-                <Register toggle={triggerLoginState} />
-            )}
-        </div>
+        <ApolloProvider client={client}>
+            <HashRouter>
+                <Switch>
+                    <Route exact path='/' component={User}/>
+                    <Route exact path='/login' component={Login}/>
+                    <Route exact path='/register' component={Register}/>
+                </Switch>
+            </HashRouter>
+        </ApolloProvider>
     )
 }
 

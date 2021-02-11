@@ -1,10 +1,11 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Page from './page'
+import Page from './page';
+import { CookiesProvider } from "react-cookie";
 
 ReactDOM.render(
-  <React.StrictMode>
+  <CookiesProvider>    
     <Page />
-  </React.StrictMode>,
+  </CookiesProvider>,
   document.getElementById('root')
 );

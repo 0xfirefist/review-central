@@ -17,17 +17,23 @@ type contextKey struct {
 func Middleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			header := r.Header.Get("Authorization")
+			cookies := r.Cookies()
+
+			token := ""
+			for _, cookie := range cookies {
+				if cookie.Name == "user" {
+					token = cookie.Value
+				}
+			}
 
 			// Allow unauthenticated users in
-			if header == "" {
+			if token == "" {
 				next.ServeHTTP(w, r)
 				return
 			}
 
 			//validate jwt token
-			tokenStr := header
-			email, err := jwt.ParseToken(tokenStr)
+			email, err := jwt.ParseToken(token)
 			if err != nil {
 				http.Error(w, "Invalid token", http.StatusForbidden)
 				return
@@ -39,6 +45,7 @@ func Middleware() func(http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 				return
 			}
+
 			// put it in context
 			ctx := context.WithValue(r.Context(), userCtxKey, &user)
 

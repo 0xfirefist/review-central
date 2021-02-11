@@ -3,13 +3,29 @@ import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
-import Link from '@material-ui/core/Link';
+import { Link } from "react-router-dom";
 import Grid from '@material-ui/core/Grid';
 import Box from '@material-ui/core/Box';
 import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { gql, useMutation } from '@apollo/client';
+import { useCookies } from "react-cookie";
+
+const REGISTER = gql`
+  mutation CreateUser($firstName: String!, $middleName: String!, $lastName: String!, $email: String!, $password: String!, $number: String!) {
+    createUser(input: {
+      firstName: $firstName,
+      middleName: $middleName,
+      lastName: $lastName,
+      email: $email,
+      password: $password,
+      number: $number})
+    }
+`;
+
+
 
 function Copyright() {
   return (
@@ -44,12 +60,35 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-interface loginprop {
-  toggle: any;
-}
 
-function Register(props: loginprop) {
+function Register() {
   const classes = useStyles();
+  const [_, setCookie] = useCookies(["user"]);
+
+  const [register] = useMutation(REGISTER, {
+    onCompleted(data) {
+      // localStorage.setItem("token",data.createUser)
+      setCookie("user", data.createUser, {      
+        path: "/",
+        // secure: true
+        sameSite: 'strict'
+      });
+    }
+  });
+
+  const handleSubmit = (event: any) => {
+    event.preventDefault()
+    register({
+      variables: {
+        firstName: event.target.firstName.value,
+        middleName: "",
+        lastName: event.target.lastName.value,
+        email: event.target.email.value,
+        password: event.target.password.value,
+        number: event.target.number.value
+      }
+    })
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -61,9 +100,9 @@ function Register(props: loginprop) {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} noValidate onSubmit={handleSubmit}>
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <TextField
                 autoComplete="fname"
                 name="firstName"
@@ -75,7 +114,18 @@ function Register(props: loginprop) {
                 autoFocus
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
+              <TextField
+                variant="outlined"
+                required
+                fullWidth
+                id="MiddleName"
+                label="Middle Name"
+                name="middleName"
+                autoComplete="mname"
+              />
+            </Grid>
+            <Grid item xs={12}>
               <TextField
                 variant="outlined"
                 required
@@ -132,8 +182,8 @@ function Register(props: loginprop) {
           </Button>
           <Grid container justify="flex-end">
             <Grid item>
-              <Link href="#" variant="body2" onClick={props.toggle}>
-                Already have an account? Sign in
+              <Link to="/login" variant="body2">
+              Already have an account? Sign in
               </Link>
             </Grid>
           </Grid>
