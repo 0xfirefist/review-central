@@ -5,7 +5,7 @@ import {HashRouter, Route, Switch} from 'react-router-dom'
 import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
 
 const client = new ApolloClient({
-  uri: window.location.origin,
+  uri: window.location.origin + "/graphql",
   cache: new InMemoryCache(),
   headers: {    authorization: localStorage.getItem('token') || '',  }
 });
