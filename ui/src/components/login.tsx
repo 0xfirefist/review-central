@@ -76,12 +76,6 @@ function Login() {
   const handleSubmit = (event: any) => {
     event.preventDefault()
     isLoggedInVar(true)
-    login({
-      variables: {
-        email: event.target.email.value,
-        password: event.target.password.value
-      }
-    })
     window.location.href = "#"
   }
 
