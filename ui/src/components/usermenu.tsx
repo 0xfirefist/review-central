@@ -54,6 +54,11 @@ export default function UserMenu() {
           </Link>
         </MenuItem>
         <MenuItem onClick={handleClose}> 
+          <Link to="/myreviews" variant="body2" className={classes.link}>
+            My Reviews
+          </Link>
+        </MenuItem>
+        <MenuItem onClick={handleClose}> 
           <Link to="/add-review" variant="body2" className={classes.link}>
             Add Review
           </Link>

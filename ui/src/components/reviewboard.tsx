@@ -1,4 +1,6 @@
 import React from 'react';
+import Button from '@material-ui/core/Button';
+import { Link } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
@@ -14,6 +16,7 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { ButtonBaseClassKey } from '@material-ui/core';
 
 const useRowStyles = makeStyles({
   root: {
@@ -28,8 +31,8 @@ function createData(productname,category) {
     productname,
     category,
     history: [
-      { date: '2020-01-05', email_ID: 'nitesh212@gmail.com',review: 'The Phone was the Worst',price:20000 },
-      { date: '2020-01-02', email_ID: 'kalradev@gmail.com',review: 'The Phone is Great',price:45000},
+      { date: '2020-01-05', email_ID: 'nitesh212@gmail.com',review: 'The Phone was the Worst',price:20000,edit:'/edit_review'},
+      { date: '2020-01-02', email_ID: 'kalradev@gmail.com',review: 'The Phone is Great',price:45000,edit:'Edit'},
     ],
   };
 }
@@ -66,6 +69,7 @@ function Row(props) {
                     <TableCell>email_ID</TableCell>
                     <TableCell align="right">review</TableCell>
                     <TableCell align="right">price</TableCell>
+                    <TableCell align="right"> Edit</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -97,6 +101,7 @@ Row.propTypes = {
         email_ID: PropTypes.string.isRequired,
         review: PropTypes.string.isRequired,
         price: PropTypes.number.isRequired,
+        edit: PropTypes.string.isRequired,
       }),
     ).isRequired,
   }).isRequired,
