@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
@@ -15,6 +14,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { gql, useMutation } from '@apollo/client';
 import { useCookies } from "react-cookie";
+import { isLoggedInVar } from '../cache'
 
 const LOGIN = gql`
   mutation Login($email: String!, $password: String!) {
@@ -75,12 +75,14 @@ function Login() {
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
+    isLoggedInVar(true)
     login({
       variables: {
         email: event.target.email.value,
         password: event.target.password.value
       }
     })
+    window.location.href = "#"
   }
 
   return (

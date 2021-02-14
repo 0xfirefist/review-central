@@ -4,6 +4,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useCookies } from "react-cookie";
+import { isLoggedInVar } from '../cache'
 import { Link } from "react-router-dom";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -32,6 +33,7 @@ export default function UserMenu() {
   };
 
   const logout = () => {
+    isLoggedInVar(false)
     removeCookie("user")
     handleClose()
   }
