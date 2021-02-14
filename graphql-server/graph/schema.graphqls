@@ -1,6 +1,15 @@
-# type Query {
-#   reviews: [Review]
-# }
+type Query {
+  # reviews: [Review]
+  user: User
+}
+
+type User {
+  firstName: String
+  middleName: String
+  lastName: String
+  email: String
+  number: String
+}
 
 type Mutation {
   # createReview(input: NewReview!): Review!
