@@ -9,8 +9,6 @@ return(
 <h1>WELCOME TO YOUR REVIEWS</h1>
 <br />
 <br />
-<Link to="/edit_review" variant="body2"><Button>Edit Review</Button>
-        </Link>
 <br />
 <CollapsibleTable/>
 </div>
