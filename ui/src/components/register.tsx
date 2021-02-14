@@ -12,6 +12,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { gql, useMutation } from '@apollo/client';
 import { useCookies } from "react-cookie";
+import { isLoggedInVar } from '../cache'
 
 const REGISTER = gql`
   mutation CreateUser($firstName: String!, $middleName: String!, $lastName: String!, $email: String!, $password: String!, $number: String!) {
@@ -78,16 +79,18 @@ function Register() {
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
-    register({
-      variables: {
-        firstName: event.target.firstName.value,
-        middleName: "",
-        lastName: event.target.lastName.value,
-        email: event.target.email.value,
-        password: event.target.password.value,
-        number: event.target.number.value
-      }
-    })
+    isLoggedInVar(true)
+    // register({
+    //   variables: {
+    //     firstName: event.target.firstName.value,
+    //     middleName: "",
+    //     lastName: event.target.lastName.value,
+    //     email: event.target.email.value,
+    //     password: event.target.password.value,
+    //     number: event.target.number.value
+    //   }
+    // })
+    window.location.href = "#"
   }
 
   return (

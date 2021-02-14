@@ -5,7 +5,10 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import UserMenu from './usermenu'
 import Button from '@material-ui/core/Button';
+import { isLoggedInVar } from '../cache'
 import { Link } from "react-router-dom";
+import { useReactiveVar } from '@apollo/client';
+
 
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -28,6 +31,8 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function ButtonAppBar() {
     const classes = useStyles();
+    const isLoggedIn = useReactiveVar(isLoggedInVar);
+ 
 
     return (
         <div className={classes.root}>
@@ -38,12 +43,16 @@ export default function ButtonAppBar() {
                             Review Central
                         </Link>
                     </Typography>
-                    {/* <Button color="inherit">
-                        <Link to="/login" variant="body2" className={classes.link}>
-                            Login/Register
-                        </Link>
-                    </Button> */}
-                    <UserMenu />
+                    {isLoggedIn? (
+                            <UserMenu />
+                        ) : (
+                            <Button color="inherit">
+                                <Link to="/login" variant="body2" className={classes.link}>
+                                    Login/Register
+                                </Link>
+                            </Button> 
+                        )
+                    }                    
                 </Toolbar>
             </AppBar>
         </div>
