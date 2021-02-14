@@ -79,6 +79,7 @@ function Row(props) {
                       <TableCell>{historyRow.email_ID}</TableCell>
                       <TableCell align="right">{historyRow.review}</TableCell>
                       <TableCell align="right">{historyRow.price}</TableCell>
+                      <TableCell align="right">{<Link to="/edit_review">Edit_Review</Link>}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
