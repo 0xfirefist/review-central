@@ -19,3 +19,11 @@ type NewUser struct {
 type RefreshTokenInput struct {
 	Token string `json:"token"`
 }
+
+type User struct {
+	FirstName  *string `json:"firstName"`
+	MiddleName *string `json:"middleName"`
+	LastName   *string `json:"lastName"`
+	Email      *string `json:"email"`
+	Number     *string `json:"number"`
+}
