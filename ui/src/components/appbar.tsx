@@ -21,6 +21,7 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         link: {
             color: 'white',
+            textDecoration: 'none',
         },
     }),
 );
@@ -33,7 +34,9 @@ export default function ButtonAppBar() {
             <AppBar position="static">
                 <Toolbar>
                     <Typography variant="h6" className={classes.title}>
-                        Review Central
+                        <Link to="/" variant="body2" className={classes.link}>
+                            Review Central
+                        </Link>
                     </Typography>
                     {/* <Button color="inherit">
                         <Link to="/login" variant="body2" className={classes.link}>
