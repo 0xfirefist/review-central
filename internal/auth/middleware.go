@@ -2,17 +2,15 @@ package auth
 
 import (
 	"context"
+	"log"
 	"net/http"
-
-	"github.com/kalradev/review-central/internal/users"
-	"github.com/kalradev/review-central/pkg/jwt"
 )
 
-var userCtxKey = &contextKey{"user"}
+// var userCtxKey = &contextKey{"user"}
 
-type contextKey struct {
-	name string
-}
+// type contextKey struct {
+// 	name string
+// }
 
 func Middleware() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -32,22 +30,8 @@ func Middleware() func(http.Handler) http.Handler {
 				return
 			}
 
-			//validate jwt token
-			email, err := jwt.ParseToken(token)
-			if err != nil {
-				http.Error(w, "Invalid token", http.StatusForbidden)
-				return
-			}
-
-			// create user and check if user exists in db
-			user, err := users.GetUserByEmail(email)
-			if err != nil {
-				next.ServeHTTP(w, r)
-				return
-			}
-
 			// put it in context
-			ctx := context.WithValue(r.Context(), userCtxKey, &user)
+			ctx := context.WithValue(r.Context(), "token", token)
 
 			// and call the next with our new context
 			r = r.WithContext(ctx)
@@ -57,7 +41,8 @@ func Middleware() func(http.Handler) http.Handler {
 }
 
 // ForContext finds the user from the context. REQUIRES Middleware to have run.
-func ForContext(ctx context.Context) *users.User {
-	raw, _ := ctx.Value(userCtxKey).(*users.User)
+func ForContext(ctx context.Context) string {
+	raw, b := ctx.Value("token").(string)
+	log.Println(raw, b)
 	return raw
 }

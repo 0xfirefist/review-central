@@ -70,19 +70,19 @@ function Login() {
         // secure: true
         sameSite: 'strict'
       });
+      isLoggedInVar(true)
+      window.location.href = "#"
     }
   });
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
-    isLoggedInVar(true)
     login({
       variables: {
         email: event.target.email.value,
         password: event.target.password.value
       }
     })
-    window.location.href = "#"
   }
 
   return (

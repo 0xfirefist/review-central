@@ -7,9 +7,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 
 	"github.com/kalradev/review-central/graphql-server/graph/generated"
 	"github.com/kalradev/review-central/graphql-server/graph/model"
+	"github.com/kalradev/review-central/internal/auth"
 	"github.com/kalradev/review-central/internal/users"
 	"github.com/kalradev/review-central/pkg/jwt"
 )
@@ -55,7 +57,32 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
-	panic(fmt.Errorf("not implemented"))
+	token := auth.ForContext(ctx)
+
+	//validate jwt token
+	email, err := jwt.ParseToken(token)
+	if err != nil {
+		return nil, errors.New("Access Denied")
+	}
+	// create user and check if user exists in db
+	user, err := users.GetUserByEmail(email)
+	if err != nil {
+		return nil, errors.New("Access Denied")
+	}
+	log.Println(user)
+
+	// if user == nil {
+	// 	return nil, errors.New("User not found")
+	// }
+
+	return &model.User{
+		FirstName:  &user.FirstName,
+		MiddleName: &user.MiddleName,
+		LastName:   &user.LastName,
+		Email:      &user.Email,
+		Number:     &user.Number,
+	}, nil
+	// return nil, nil
 }
 
 // Mutation returns generated.MutationResolver implementation.

@@ -9,8 +9,6 @@ import { isLoggedInVar } from '../cache'
 import { Link } from "react-router-dom";
 import { useReactiveVar } from '@apollo/client';
 
-
-
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
         root: {
@@ -32,7 +30,6 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function ButtonAppBar() {
     const classes = useStyles();
     const isLoggedIn = useReactiveVar(isLoggedInVar);
- 
 
     return (
         <div className={classes.root}>

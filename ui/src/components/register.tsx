@@ -74,23 +74,23 @@ function Register() {
         // secure: true
         sameSite: 'strict'
       });
+      isLoggedInVar(true)
+      window.location.href = "#"
     }
   });
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
-    isLoggedInVar(true)
-    // register({
-    //   variables: {
-    //     firstName: event.target.firstName.value,
-    //     middleName: "",
-    //     lastName: event.target.lastName.value,
-    //     email: event.target.email.value,
-    //     password: event.target.password.value,
-    //     number: event.target.number.value
-    //   }
-    // })
-    window.location.href = "#"
+    register({
+      variables: {
+        firstName: event.target.firstName.value,
+        middleName: "",
+        lastName: event.target.lastName.value,
+        email: event.target.email.value,
+        password: event.target.password.value,
+        number: event.target.number.value
+      }
+    })
   }
 
   return (

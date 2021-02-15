@@ -6,6 +6,18 @@ import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { useCookies } from "react-cookie";
 import { isLoggedInVar } from '../cache'
 import { Link } from "react-router-dom";
+import { gql, useQuery, useReactiveVar } from '@apollo/client';
+
+
+const USER = gql`
+  query User {
+    user {
+        firstName
+        middleName
+        lastName
+    }
+  }
+`;
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -21,9 +33,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function UserMenu() {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
-    const classes = useStyles();
+  const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
+  const { loading, error, data } = useQuery(USER);
+  // console.log(data)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -36,32 +49,41 @@ export default function UserMenu() {
     isLoggedInVar(false)
     removeCookie("user")
     handleClose()
+    window.location.href = "#"
   }
 
   return (
     <div>
-      <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} className={classes.buttonText}>
-        {"UserName"}
-      </Button>
-      <Menu
-        id="simple-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-      >
-         <MenuItem onClick={handleClose}> 
-          <Link to="/profile" variant="body2" className={classes.link}>
-            Profile
-          </Link>
-        </MenuItem>
-        <MenuItem onClick={handleClose}> 
-          <Link to="/add-review" variant="body2" className={classes.link}>
-            Add Review
-          </Link>
-        </MenuItem>
-        <MenuItem onClick={logout}>Logout</MenuItem>
-      </Menu>
+      {loading? (
+              <div>Loading .....</div>
+          ) : (
+            <div>
+              <Button aria-controls="simple-menu" aria-haspopup="true" onClick={handleClick} className={classes.buttonText}>
+                {data.user.firstName + " " + data.user.middleName + " " + data.user.lastName}
+                {/* Username */}
+              </Button>
+              <Menu
+                id="simple-menu"
+                anchorEl={anchorEl}
+                keepMounted
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleClose}> 
+                  <Link to="/profile" variant="body2" className={classes.link}>
+                    Profile
+                  </Link>
+                </MenuItem>
+                <MenuItem onClick={handleClose}> 
+                  <Link to="/add-review" variant="body2" className={classes.link}>
+                    Add Review
+                  </Link>
+                </MenuItem>
+                <MenuItem onClick={logout}>Logout</MenuItem>
+              </Menu>
+            </div>
+          )
+      }           
     </div>
   );
 }

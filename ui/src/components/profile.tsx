@@ -8,21 +8,33 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import { gql, useMutation } from '@apollo/client';
+// import { gql, useMutation } from '@apollo/client';
 import { useCookies } from "react-cookie";
 import AppBar from './appbar';
+import { gql, useQuery, useReactiveVar } from '@apollo/client';
 
-const REGISTER = gql`
-  mutation CreateUser($firstName: String!, $middleName: String!, $lastName: String!, $email: String!, $password: String!, $number: String!) {
-    createUser(input: {
-      firstName: $firstName,
-      middleName: $middleName,
-      lastName: $lastName,
-      email: $email,
-      password: $password,
-      number: $number})
+const USER = gql`
+  query User {
+    user {
+        firstName
+        middleName
+        lastName
+        email
+        number
     }
+  }
 `;
+// const REGISTER = gql`
+//   mutation CreateUser($firstName: String!, $middleName: String!, $lastName: String!, $email: String!, $password: String!, $number: String!) {
+//     createUser(input: {
+//       firstName: $firstName,
+//       middleName: $middleName,
+//       lastName: $lastName,
+//       email: $email,
+//       password: $password,
+//       number: $number})
+//     }
+// `;
 
 
 
@@ -62,31 +74,44 @@ const useStyles = makeStyles((theme) => ({
 
 function Register() {
   const classes = useStyles();
-  const [_, setCookie] = useCookies(["user"]);
+  // const [_, setCookie] = useCookies(["user"]);
 
-  const [register] = useMutation(REGISTER, {
-    onCompleted(data) {
-      // localStorage.setItem("token",data.createUser)
-      setCookie("user", data.createUser, {      
-        path: "/",
-        // secure: true
-        sameSite: 'strict'
-      });
-    }
-  });
+  // const [register] = useMutation(REGISTER, {
+  //   onCompleted(data) {
+  //     // localStorage.setItem("token",data.createUser)
+  //     setCookie("user", data.createUser, {      
+  //       path: "/",
+  //       // secure: true
+  //       sameSite: 'strict'
+  //     });
+  //   }
+  // });
+
+  const { loading, error, data } = useQuery(USER);
+  console.log(data)
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
-    register({
-      variables: {
-        firstName: event.target.firstName.value,
-        middleName: "",
-        lastName: event.target.lastName.value,
-        email: event.target.email.value,
-        password: event.target.password.value,
-        number: event.target.number.value
-      }
-    })
+    // register({
+    //   variables: {
+    //     firstName: event.target.firstName.value,
+    //     middleName: "",
+    //     lastName: event.target.lastName.value,
+    //     email: event.target.email.value,
+    //     password: event.target.password.value,
+    //     number: event.target.number.value
+    //   }
+    // })
+    console.log("update data")
+  }
+
+  if(loading) {
+    return (
+      <div>
+        <AppBar/>
+        <div>Loading ...</div>  
+      </div>
+    )
   }
 
   return (
@@ -110,6 +135,7 @@ function Register() {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                value={data.user.firstName}
               />
             </Grid>
             <Grid item xs={12}>
@@ -121,6 +147,7 @@ function Register() {
                 label="Middle Name"
                 name="middleName"
                 autoComplete="mname"
+                value={data.user.middleName}
               />
             </Grid>
             <Grid item xs={12}>
@@ -132,6 +159,7 @@ function Register() {
                 label="Last Name"
                 name="lastName"
                 autoComplete="lname"
+                value={data.user.lastName}
               />
             </Grid>
             <Grid item xs={12}>
@@ -143,6 +171,7 @@ function Register() {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                value={data.user.email}
               />
             </Grid>
             <Grid item xs={12}>
@@ -154,6 +183,7 @@ function Register() {
                 label="Phone Number"
                 name="number"
                 autoComplete="number"
+                value={data.user.number}
               />
             </Grid>
             <Grid item xs={12}>

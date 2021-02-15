@@ -7,12 +7,16 @@ import Register from './components/register'
 import AddReview from './components/add-review'
 import Profile from './components/profile'
 import {HashRouter, Route, Switch} from 'react-router-dom'
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+
+const link = createHttpLink({
+  uri: '/graphql',
+  credentials: 'same-origin'
+});
 
 const client = new ApolloClient({
-  uri: window.location.origin + "/graphql",
+  link,
   cache: new InMemoryCache(),
-  headers: {    authorization: localStorage.getItem('token') || '',  }
 });
 
 ReactDOM.render(
