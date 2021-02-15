@@ -5,7 +5,9 @@ import { CookiesProvider } from "react-cookie";
 import Login from './components/login'
 import Register from './components/register'
 import AddReview from './components/add-review'
+import EditReview from './components/edit_review'
 import Profile from './components/profile'
+import Myreviews from './components/myreviews';
 import {HashRouter, Route, Switch} from 'react-router-dom'
 import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 
@@ -25,6 +27,8 @@ ReactDOM.render(
             <HashRouter>
                 <Switch>
                     <Route exact path='/' component={HomePage}/>
+                    <Route exact path='/myreviews' component={Myreviews}/>
+                    <Route exact path='/edit_review' component={EditReview}/>
                     <Route exact path='/login' component={Login}/>
                     <Route exact path='/register' component={Register}/>
                     <Route exact path='/add-review' component={AddReview}/>
