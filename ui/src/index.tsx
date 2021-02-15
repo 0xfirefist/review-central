@@ -28,7 +28,7 @@ ReactDOM.render(
                 <Switch>
                     <Route exact path='/' component={HomePage}/>
                     <Route exact path='/myreviews' component={Myreviews}/>
-                    <Route exact path='/edit_review' component={EditReview}/>
+                    <Route exact path='/edit-review' component={EditReview}/>
                     <Route exact path='/login' component={Login}/>
                     <Route exact path='/register' component={Register}/>
                     <Route exact path='/add-review' component={AddReview}/>
