@@ -63,6 +63,20 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 }
 
 func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInput) (string, error) {
+	// get user
+	token := auth.ForContext(ctx)
+
+	//validate jwt token
+	email, err := jwt.ParseToken(token)
+	if err != nil {
+		return "", errors.New("Access Denied")
+	}
+	// create user and check if user exists in db
+	user, err := users.GetUserByEmail(email)
+	if err != nil {
+		return "", errors.New("Access Denied")
+	}
+
 	// Where your local node is running on localhost:5001
 	sh := shell.NewShell("https://ipfs.infura.io:5001")
 	jsonifiedReview, err := json.Marshal(input)
@@ -71,6 +85,12 @@ func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInp
 		return "", err
 	}
 	hash, err := sh.Add(bytes.NewReader(jsonifiedReview))
+	if err != nil {
+		log.Printf("error: %s", err)
+		return "", err
+	}
+
+	err = user.AddReviewHash(hash)
 	if err != nil {
 		log.Printf("error: %s", err)
 		return "", err

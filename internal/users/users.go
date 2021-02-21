@@ -18,6 +18,13 @@ type User struct {
 	Number     string `json:"number"`
 }
 
+type IPFSHash struct {
+	gorm.Model
+	Hash   string
+	UserID string
+	User   User
+}
+
 var users = []*User{}
 
 // Create - add user to the database
@@ -63,4 +70,20 @@ func (u *User) Authenticate() bool {
 		return false
 	}
 	return true
+}
+
+// AddReviewHash to map hash to users
+func (u *User) AddReviewHash(hash string) error {
+	database, err := db.GetDBInstance()
+	if err != nil {
+		log.Println("Error getting DB instance")
+		return err
+	}
+
+	res := database.Create(&IPFSHash{
+		Hash: hash,
+		User: *u,
+	})
+
+	return res.Error
 }

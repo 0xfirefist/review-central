@@ -18,15 +18,7 @@ const (
 
 func main() {
 	// initialize database
-	db.Initialize()
-	database, err := db.GetDBInstance()
-	if err != nil {
-		log.Fatalln("Error getting DB instance")
-	}
-	err = database.AutoMigrate(&users.User{})
-	if err != nil {
-		log.Fatalln("Couldn't setup database")
-	}
+	db.Initialize(&users.User{}, &users.IPFSHash{})
 
 	router := mux.NewRouter()
 	router.Use(auth.Middleware())
