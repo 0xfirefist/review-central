@@ -9,15 +9,14 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { gql, useMutation } from '@apollo/client';
-import { useCookies } from "react-cookie";
 import AppBar from './appbar';
 
-const LOGIN = gql`
-  mutation Login($email: String!, $password: String!) {
-      login(input: {
-        email: $email,
-        password: $password
-      })
+const ADDREVIEW = gql`
+  mutation AddReview($token: String!,$rating: Float!,$review: String!) {
+    addReview(input: {
+      token: $token,
+      rating: $rating,
+      review: $review})
     }
 `;
 
@@ -61,25 +60,20 @@ const useStyles = makeStyles((theme) => ({
 
 function Login() {
   const classes = useStyles();
-  const [_, setCookie] = useCookies(["user"]);
 
-  const [login] = useMutation(LOGIN, {
+  const [addReview] = useMutation(ADDREVIEW, {
     onCompleted(data) {
-      // localStorage.setItem("token",data.createUser)
-      setCookie("user", data.login, {      
-        path: "/",
-        // secure: true
-        sameSite: 'strict'
-      });
+      console.log(data.addReview)
     }
   });
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
-    login({
+    addReview({
       variables: {
-        email: event.target.email.value,
-        password: event.target.password.value
+        token: event.target.token.value,
+        rating: +event.target.rating.value,
+        review: event.target.review.value
       }
     })
   }
@@ -115,7 +109,6 @@ function Login() {
             type="rating"
             id="rating"
           />
-          <form className={classes.form1} noValidate onSubmit={handleSubmit}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -126,7 +119,6 @@ function Login() {
             type="review"
             id="review"
           />
-          </form>
           <Button
             type="submit"
             fullWidth

@@ -8,3 +8,6 @@ run-local-server:
 ## UI
 build-ui: 
 	cd ui;npm run build;cd ..;
+
+dev-ui:
+	cd ui;npm run start;cd ..;

@@ -7,7 +7,7 @@ import Register from './components/register'
 import AddReview from './components/add-review'
 import EditReview from './components/edit_review'
 import Profile from './components/profile'
-import Myreviews1 from './components/myreviews';
+import MyReviews from './components/my-reviews';
 import {HashRouter, Route, Switch} from 'react-router-dom'
 import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 
@@ -32,7 +32,7 @@ ReactDOM.render(
                     <Route exact path='/register' component={Register}/>
                     <Route exact path='/add-review' component={AddReview}/>
                     <Route exact path='/profile' component={Profile}/>
-                    <Route exact path='/myreviews' component={Myreviews1}/>
+                    <Route exact path='/my-reviews' component={MyReviews}/>
                 </Switch>
             </HashRouter>
         </ApolloProvider>

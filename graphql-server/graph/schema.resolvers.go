@@ -67,12 +67,15 @@ func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInp
 		log.Printf("error: %s", err)
 		return "", err
 	}
-	ipfsToken, err := sh.Add(bytes.NewReader(jsonifiedReview))
+	hash, err := sh.Add(bytes.NewReader(jsonifiedReview))
 	if err != nil {
 		log.Printf("error: %s", err)
 		return "", err
 	}
-	return fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", ipfsToken), nil
+
+	// store token, hash on blockchain
+	// and store token, user in database
+	return fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash), nil
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
