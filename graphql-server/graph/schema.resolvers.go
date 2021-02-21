@@ -56,6 +56,10 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 	return token, nil
 }
 
+func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInput) (string, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	token := auth.ForContext(ctx)
 

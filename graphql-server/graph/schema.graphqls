@@ -16,6 +16,7 @@ type Mutation {
   createUser(input: NewUser!): String!
   login(input: Login!): String!
   refreshToken(input: RefreshTokenInput!): String!
+  addReview(input: ReviewInput): String!
 }
 
 input NewUser {
@@ -34,6 +35,12 @@ input Login {
 
 input RefreshTokenInput{
   token: String!
+}
+
+input ReviewInput{
+  token: String!
+  rating: Float!
+  review: String!
 }
 
 # type Review {
