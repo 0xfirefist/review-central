@@ -4,11 +4,14 @@ package graph
 // will be copied through when generating and any unknown code will be moved to the end.
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 
+	shell "github.com/ipfs/go-ipfs-api"
 	"github.com/kalradev/review-central/graphql-server/graph/generated"
 	"github.com/kalradev/review-central/graphql-server/graph/model"
 	"github.com/kalradev/review-central/internal/auth"
@@ -57,7 +60,19 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 }
 
 func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInput) (string, error) {
-	panic(fmt.Errorf("not implemented"))
+	// Where your local node is running on localhost:5001
+	sh := shell.NewShell("https://ipfs.infura.io:5001")
+	jsonifiedReview, err := json.Marshal(input)
+	if err != nil {
+		log.Printf("error: %s", err)
+		return "", err
+	}
+	ipfsToken, err := sh.Add(bytes.NewReader(jsonifiedReview))
+	if err != nil {
+		log.Printf("error: %s", err)
+		return "", err
+	}
+	return fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", ipfsToken), nil
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
