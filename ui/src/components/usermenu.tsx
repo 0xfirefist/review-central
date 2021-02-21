@@ -78,6 +78,9 @@ export default function UserMenu() {
                   <Link to="/add-review" variant="body2" className={classes.link}>
                     Add Review
                   </Link>
+                  <Link to="/myreviews" variant="body2" className={classes.link}>
+                    My Reviews
+                  </Link>
                 </MenuItem>
                 <MenuItem onClick={logout}>Logout</MenuItem>
               </Menu>
