@@ -7,7 +7,7 @@ import Register from './components/register'
 import AddReview from './components/add-review'
 import EditReview from './components/edit_review'
 import Profile from './components/profile'
-import Myreviews from './components/myreviews';
+import Myreviews1 from './components/myreviews';
 import {HashRouter, Route, Switch} from 'react-router-dom'
 import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
 
@@ -27,7 +27,7 @@ ReactDOM.render(
             <HashRouter>
                 <Switch>
                     <Route exact path='/' component={HomePage}/>
-                    <Route exact path='/myreviews' component={Myreviews}/>
+                    <Route exact path='/myreviews' component={Myreviews1}/>
                     <Route exact path='/edit-review' component={EditReview}/>
                     <Route exact path='/login' component={Login}/>
                     <Route exact path='/register' component={Register}/>

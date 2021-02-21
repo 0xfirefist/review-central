@@ -94,10 +94,10 @@ function Login() {
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
+            id="token"
+            label="Token"
+            name="token"
+            autoComplete="token"
             autoFocus
           />
           <TextField
@@ -105,11 +105,10 @@ function Login() {
             margin="normal"
             required
             fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
+            name="review"
+            label="Review"
+            type="review"
+            id="review"
           />
           <Button
             type="submit"
