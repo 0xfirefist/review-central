@@ -1,18 +1,14 @@
 import React from 'react';
 import Button from '@material-ui/core/Button';
 import { Link } from "react-router-dom";
-import CollapsibleTable from './reviewboard';
+import MyreviewBoard from './my-reviews';
 import { makeStyles } from '@material-ui/core/styles';
-function Myreviews(){
+function Myreviews1(){
 return(
     <div>
-<h1>WELCOME TO YOUR REVIEWS</h1>
-<br />
-<br />
-<br />
-<CollapsibleTable/>
+<MyreviewBoard/>
 </div>
 
 )
 }
-export default Myreviews
+export default Myreviews1

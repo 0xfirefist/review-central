@@ -8,12 +8,7 @@ function User(){
         <Link to="/login" variant="body2">
                 Already have an account? Sign in
         </Link>
-        <br />
-        <br />
-        <br />
-        <br />
         <h1>REVIEW-BOARD</h1>
-        <br />
         <CollapsibleTable/>
     </div>
     )

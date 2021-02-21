@@ -31,8 +31,8 @@ function createData(productname,category) {
     productname,
     category,
     history: [
-      { date: '2020-01-05', email_ID: 'nitesh212@gmail.com',review: 'The Phone was the Worst',price:20000},
-      { date: '2020-01-02', email_ID: 'kalradev@gmail.com',review: 'The Phone is Great',price:45000},
+      { date: '2020-01-05', email_ID: 'nitesh212@gmail.com',review: 'The Phone was the Worst',price:20000,edit:'/edit_review'},
+      { date: '2020-01-02', email_ID: 'kalradev@gmail.com',review: 'The Phone is Great',price:45000,edit:'Edit'},
     ],
   };
 }
@@ -69,6 +69,7 @@ function Row(props) {
                     <TableCell>email_ID</TableCell>
                     <TableCell align="right">review</TableCell>
                     <TableCell align="right">price</TableCell>
+                    <TableCell align="right"> Edit</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -78,6 +79,7 @@ function Row(props) {
                       <TableCell>{historyRow.email_ID}</TableCell>
                       <TableCell align="right">{historyRow.review}</TableCell>
                       <TableCell align="right">{historyRow.price}</TableCell>
+                      <TableCell align="right">{<Link to="/edit-review">Edit_Review</Link>}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -100,6 +102,7 @@ Row.propTypes = {
         email_ID: PropTypes.string.isRequired,
         review: PropTypes.string.isRequired,
         price: PropTypes.number.isRequired,
+        edit: PropTypes.string.isRequired,
       }),
     ).isRequired,
   }).isRequired,
