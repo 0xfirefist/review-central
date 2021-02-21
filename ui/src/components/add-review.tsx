@@ -48,7 +48,12 @@ const useStyles = makeStyles((theme) => ({
   form: {
     width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
+  },form1: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+    height: '150%',
   },
+
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
@@ -105,11 +110,23 @@ function Login() {
             margin="normal"
             required
             fullWidth
+            name="rating"
+            label="Rating"
+            type="rating"
+            id="rating"
+          />
+          <form className={classes.form1} noValidate onSubmit={handleSubmit}>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
             name="review"
             label="Review"
             type="review"
             id="review"
           />
+          </form>
           <Button
             type="submit"
             fullWidth
