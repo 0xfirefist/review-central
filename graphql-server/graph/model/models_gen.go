@@ -20,6 +20,11 @@ type RefreshTokenInput struct {
 	Token string `json:"token"`
 }
 
+type Review struct {
+	Rating *float64 `json:"rating"`
+	Review *string  `json:"review"`
+}
+
 type ReviewInput struct {
 	Token  string  `json:"token"`
 	Rating float64 `json:"rating"`
@@ -32,4 +37,8 @@ type User struct {
 	LastName   *string `json:"lastName"`
 	Email      *string `json:"email"`
 	Number     *string `json:"number"`
+}
+
+type UserInfo struct {
+	CurrentUser *bool `json:"currentUser"`
 }

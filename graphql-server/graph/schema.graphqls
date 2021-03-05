@@ -1,6 +1,15 @@
 type Query {
-  # reviews: [Review]
+  reviews(input: UserInfo): [Review]
   user: User
+}
+
+input UserInfo {
+  currentUser: Boolean
+}
+
+type Review {
+  rating: Float
+  review: String
 }
 
 type User {
@@ -42,9 +51,3 @@ input ReviewInput{
   rating: Float!
   review: String!
 }
-
-# type Review {
-#   ratings: Float
-#   review: String
-#   username: String
-# }

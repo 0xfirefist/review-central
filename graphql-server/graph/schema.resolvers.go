@@ -10,8 +10,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
 	shell "github.com/ipfs/go-ipfs-api"
+	"github.com/kalradev/review-central/contracts"
 	"github.com/kalradev/review-central/graphql-server/graph/generated"
 	"github.com/kalradev/review-central/graphql-server/graph/model"
 	"github.com/kalradev/review-central/internal/auth"
@@ -64,10 +67,10 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 
 func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInput) (string, error) {
 	// get user
-	token := auth.ForContext(ctx)
+	cookie := auth.ForContext(ctx)
 
 	//validate jwt token
-	email, err := jwt.ParseToken(token)
+	email, err := jwt.ParseToken(cookie)
 	if err != nil {
 		return "", errors.New("Access Denied")
 	}
@@ -90,15 +93,91 @@ func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInp
 		return "", err
 	}
 
-	err = user.AddReviewHash(hash)
+	err = contracts.Put(input.Token, []string{hash})
 	if err != nil {
 		log.Printf("error: %s", err)
 		return "", err
 	}
+	err = user.AddToken(input.Token)
 
 	// store token, hash on blockchain
 	// and store token, user in database
 	return fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash), nil
+}
+
+func (r *queryResolver) Reviews(ctx context.Context, input *model.UserInfo) ([]*model.Review, error) {
+	var reviews []*model.Review
+	var myClient = &http.Client{Timeout: 10 * time.Second}
+
+	if input != nil && input.CurrentUser != nil && *input.CurrentUser == false {
+		tokens, err := contracts.GetTokens()
+		if err != nil {
+			return nil, errors.New("Coudn't get review tokens")
+		}
+
+		for _, token := range tokens {
+			// get hash of every token
+			hashes, err := contracts.Get(token)
+			if err != nil {
+				return nil, errors.New("Coudn't get ipfs hash")
+			}
+			for _, hash := range hashes {
+				r, err := myClient.Get(fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash))
+				if err != nil {
+					log.Println("error getting response from ipfs")
+				}
+				defer r.Body.Close()
+
+				var rev *model.Review
+				json.NewDecoder(r.Body).Decode(rev)
+				reviews = append(reviews, rev)
+			}
+		}
+
+	} else {
+		// get user
+		token := auth.ForContext(ctx)
+
+		//validate jwt token
+		email, err := jwt.ParseToken(token)
+		if err != nil {
+			return nil, errors.New("Access Denied")
+		}
+		// create user and check if user exists in db
+		user, err := users.GetUserByEmail(email)
+		if err != nil {
+			return nil, errors.New("Access Denied")
+		}
+
+		tokens, err := user.GetTokens()
+		if err != nil {
+			return nil, errors.New("Coudn't get tokens")
+		}
+		log.Println(tokens)
+
+		for _, token := range tokens {
+			// get hash of every token
+			hashes, err := contracts.Get(token)
+			log.Println(hashes)
+			if err != nil {
+				return nil, errors.New("Coudn't get ipfs hash")
+			}
+			for _, hash := range hashes {
+				r, err := myClient.Get(fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash))
+				if err != nil {
+					log.Println("error getting response from ipfs")
+				}
+				defer r.Body.Close()
+
+				var rev model.Review
+				json.NewDecoder(r.Body).Decode(&rev)
+				reviews = append(reviews, &rev)
+			}
+		}
+
+	}
+
+	return reviews, nil
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {

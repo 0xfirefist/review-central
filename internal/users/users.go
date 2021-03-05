@@ -18,9 +18,9 @@ type User struct {
 	Number     string `json:"number"`
 }
 
-type IPFSHash struct {
+type TokenMap struct {
 	gorm.Model
-	Hash   string
+	Token  string
 	UserID string
 	User   User
 }
@@ -73,17 +73,38 @@ func (u *User) Authenticate() bool {
 }
 
 // AddReviewHash to map hash to users
-func (u *User) AddReviewHash(hash string) error {
+func (u *User) AddToken(token string) error {
 	database, err := db.GetDBInstance()
 	if err != nil {
 		log.Println("Error getting DB instance")
 		return err
 	}
 
-	res := database.Create(&IPFSHash{
-		Hash: hash,
-		User: *u,
+	res := database.Create(&TokenMap{
+		Token: token,
+		User:  *u,
 	})
 
 	return res.Error
+}
+
+func (u *User) GetTokens() ([]string, error) {
+	database, err := db.GetDBInstance()
+	if err != nil {
+		log.Println("Error getting DB instance")
+		return nil, err
+	}
+
+	var tokenMap []TokenMap
+	res := database.Find(&tokenMap, "user_id=?", u.ID)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	var tokens []string
+	for _, tmap := range tokenMap {
+		tokens = append(tokens, tmap.Token)
+	}
+
+	return tokens, nil
 }
