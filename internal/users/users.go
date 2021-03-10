@@ -108,3 +108,20 @@ func (u *User) GetTokens() ([]string, error) {
 
 	return tokens, nil
 }
+
+// IsTokenValid to check if the user has the token against which it wants to add offset review
+func (u *User) IsTokenValid(token string) (bool, error) {
+	database, err := db.GetDBInstance()
+	if err != nil {
+		log.Println("Error getting DB instance")
+		return false, err
+	}
+
+	var tokenMap TokenMap
+	res := database.First(&tokenMap, "token=?", token)
+	if res.Error != nil {
+		return false, res.Error
+	}
+
+	return true, nil
+}
