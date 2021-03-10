@@ -193,7 +193,7 @@ func (r *queryResolver) GetReviews(ctx context.Context, input *model.UserInfo) (
 				reviews = append(reviews, &rev)
 			}
 
-			associatedReviews = append(associatedReviews, &model.AssociatedReview{Reviews: reviews})
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token, Reviews: reviews})
 		}
 	} else {
 		// get user
@@ -240,7 +240,7 @@ func (r *queryResolver) GetReviews(ctx context.Context, input *model.UserInfo) (
 				reviews = append(reviews, &rev)
 			}
 
-			associatedReviews = append(associatedReviews, &model.AssociatedReview{Reviews: reviews})
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token, Reviews: reviews})
 		}
 	}
 

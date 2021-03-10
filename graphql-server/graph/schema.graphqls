@@ -4,6 +4,7 @@ type Query {
 }
 
 type AssociatedReview{
+  token: String
   reviews: [Review]
 }
 

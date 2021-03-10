@@ -3,6 +3,7 @@
 package model
 
 type AssociatedReview struct {
+	Token   *string   `json:"token"`
 	Reviews []*Review `json:"reviews"`
 }
 

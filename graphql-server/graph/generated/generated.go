@@ -44,6 +44,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	AssociatedReview struct {
 		Reviews func(childComplexity int) int
+		Token   func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -107,6 +108,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AssociatedReview.Reviews(childComplexity), true
+
+	case "AssociatedReview.token":
+		if e.complexity.AssociatedReview.Token == nil {
+			break
+		}
+
+		return e.complexity.AssociatedReview.Token(childComplexity), true
 
 	case "Mutation.addOffset":
 		if e.complexity.Mutation.AddOffset == nil {
@@ -313,6 +321,7 @@ var sources = []*ast.Source{
 }
 
 type AssociatedReview{
+  token: String
   reviews: [Review]
 }
 
@@ -518,6 +527,38 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AssociatedReview_token(ctx context.Context, field graphql.CollectedField, obj *model.AssociatedReview) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssociatedReview",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _AssociatedReview_reviews(ctx context.Context, field graphql.CollectedField, obj *model.AssociatedReview) (ret graphql.Marshaler) {
 	defer func() {
@@ -2437,6 +2478,8 @@ func (ec *executionContext) _AssociatedReview(ctx context.Context, sel ast.Selec
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("AssociatedReview")
+		case "token":
+			out.Values[i] = ec._AssociatedReview_token(ctx, field, obj)
 		case "reviews":
 			out.Values[i] = ec._AssociatedReview_reviews(ctx, field, obj)
 		default:
