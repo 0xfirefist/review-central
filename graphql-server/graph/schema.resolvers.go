@@ -67,7 +67,10 @@ func (r *mutationResolver) RefreshToken(ctx context.Context, input model.Refresh
 
 func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInput) (string, error) {
 	// get user
-	cookie := auth.ForContext(ctx)
+	cookie, err := auth.ForContext(ctx)
+	if err != nil {
+		return "", errors.New("Cookie not found, access denied")
+	}
 
 	//validate jwt token
 	email, err := jwt.ParseToken(cookie)
@@ -79,6 +82,14 @@ func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInp
 	if err != nil {
 		return "", errors.New("Access Denied")
 	}
+
+	// token should not be used previously
+	valid, err := user.IsTokenValid(input.Token)
+	if valid == true {
+		return "", errors.New("Cannot reuse a token, add offset review instead.")
+	}
+
+	// token should be verify by seller
 
 	// Where your local node is running on localhost:5001
 	sh := shell.NewShell("https://ipfs.infura.io:5001")
@@ -105,17 +116,66 @@ func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInp
 	return fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash), nil
 }
 
-func (r *queryResolver) Reviews(ctx context.Context, input *model.UserInfo) ([]*model.Review, error) {
-	var reviews []*model.Review
+func (r *mutationResolver) AddOffset(ctx context.Context, input *model.ReviewInput) (string, error) {
+	// get user
+	cookie, err := auth.ForContext(ctx)
+	if err != nil {
+		return "", errors.New("Cookie not found, access denied")
+	}
+
+	//validate jwt token
+	email, err := jwt.ParseToken(cookie)
+	if err != nil {
+		return "", errors.New("Access Denied")
+	}
+	// create user and check if user exists in db
+	user, err := users.GetUserByEmail(email)
+	if err != nil {
+		return "", errors.New("Access Denied")
+	}
+
+	// check if user has the token to which it want to add offset review
+	valid, err := user.IsTokenValid(input.Token)
+	if err != nil || valid == false {
+		return "", errors.New("Couldn't verify token")
+	}
+
+	// Where your local node is running on localhost:5001
+	sh := shell.NewShell("https://ipfs.infura.io:5001")
+	jsonifiedReview, err := json.Marshal(input)
+	if err != nil {
+		log.Printf("error: %s", err)
+		return "", err
+	}
+	hash, err := sh.Add(bytes.NewReader(jsonifiedReview))
+	if err != nil {
+		log.Printf("error: %s", err)
+		return "", err
+	}
+
+	err = contracts.Put(input.Token, []string{hash})
+	if err != nil {
+		log.Printf("error: %s", err)
+		return "", err
+	}
+
+	return fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash), nil
+}
+
+func (r *queryResolver) GetReviews(ctx context.Context, input *model.UserInfo) ([]*model.AssociatedReview, error) {
+	var associatedReviews []*model.AssociatedReview
 	var myClient = &http.Client{Timeout: 10 * time.Second}
 
+	// general reviews
 	if input != nil && input.CurrentUser != nil && *input.CurrentUser == false {
 		tokens, err := contracts.GetTokens()
 		if err != nil {
-			return nil, errors.New("Coudn't get review tokens")
+			return nil, errors.New("Couldn't get review tokens")
 		}
 
 		for _, token := range tokens {
+			var reviews []*model.Review
+
 			// get hash of every token
 			hashes, err := contracts.Get(token)
 			if err != nil {
@@ -127,19 +187,23 @@ func (r *queryResolver) Reviews(ctx context.Context, input *model.UserInfo) ([]*
 					log.Println("error getting response from ipfs")
 				}
 				defer r.Body.Close()
-
-				var rev *model.Review
-				json.NewDecoder(r.Body).Decode(rev)
-				reviews = append(reviews, rev)
+				log.Println(hash)
+				var rev model.Review
+				json.NewDecoder(r.Body).Decode(&rev)
+				reviews = append(reviews, &rev)
 			}
-		}
 
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{Reviews: reviews})
+		}
 	} else {
 		// get user
-		token := auth.ForContext(ctx)
+		cookie, err := auth.ForContext(ctx)
+		if err != nil {
+			return nil, errors.New("Cookie not found, access denied")
+		}
 
 		//validate jwt token
-		email, err := jwt.ParseToken(token)
+		email, err := jwt.ParseToken(cookie)
 		if err != nil {
 			return nil, errors.New("Access Denied")
 		}
@@ -156,6 +220,8 @@ func (r *queryResolver) Reviews(ctx context.Context, input *model.UserInfo) ([]*
 		log.Println(tokens)
 
 		for _, token := range tokens {
+			var reviews []*model.Review
+
 			// get hash of every token
 			hashes, err := contracts.Get(token)
 			log.Println(hashes)
@@ -173,18 +239,22 @@ func (r *queryResolver) Reviews(ctx context.Context, input *model.UserInfo) ([]*
 				json.NewDecoder(r.Body).Decode(&rev)
 				reviews = append(reviews, &rev)
 			}
-		}
 
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{Reviews: reviews})
+		}
 	}
 
-	return reviews, nil
+	return associatedReviews, nil
 }
 
 func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
-	token := auth.ForContext(ctx)
+	cookie, err := auth.ForContext(ctx)
+	if err != nil {
+		return nil, errors.New("Cookie not found, access denied")
+	}
 
 	//validate jwt token
-	email, err := jwt.ParseToken(token)
+	email, err := jwt.ParseToken(cookie)
 	if err != nil {
 		return nil, errors.New("Access Denied")
 	}

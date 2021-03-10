@@ -8,6 +8,7 @@ import (
 	"errors"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
@@ -42,7 +43,12 @@ type DirectiveRoot struct {
 }
 
 type ComplexityRoot struct {
+	AssociatedReview struct {
+		Reviews func(childComplexity int) int
+	}
+
 	Mutation struct {
+		AddOffset    func(childComplexity int, input *model.ReviewInput) int
 		AddReview    func(childComplexity int, input *model.ReviewInput) int
 		CreateUser   func(childComplexity int, input model.NewUser) int
 		Login        func(childComplexity int, input model.Login) int
@@ -50,13 +56,14 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Reviews func(childComplexity int, input *model.UserInfo) int
-		User    func(childComplexity int) int
+		GetReviews func(childComplexity int, input *model.UserInfo) int
+		User       func(childComplexity int) int
 	}
 
 	Review struct {
-		Rating func(childComplexity int) int
-		Review func(childComplexity int) int
+		Rating    func(childComplexity int) int
+		Review    func(childComplexity int) int
+		Timestamp func(childComplexity int) int
 	}
 
 	User struct {
@@ -73,9 +80,10 @@ type MutationResolver interface {
 	Login(ctx context.Context, input model.Login) (string, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
 	AddReview(ctx context.Context, input *model.ReviewInput) (string, error)
+	AddOffset(ctx context.Context, input *model.ReviewInput) (string, error)
 }
 type QueryResolver interface {
-	Reviews(ctx context.Context, input *model.UserInfo) ([]*model.Review, error)
+	GetReviews(ctx context.Context, input *model.UserInfo) ([]*model.AssociatedReview, error)
 	User(ctx context.Context) (*model.User, error)
 }
 
@@ -93,6 +101,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AssociatedReview.reviews":
+		if e.complexity.AssociatedReview.Reviews == nil {
+			break
+		}
+
+		return e.complexity.AssociatedReview.Reviews(childComplexity), true
+
+	case "Mutation.addOffset":
+		if e.complexity.Mutation.AddOffset == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_addOffset_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AddOffset(childComplexity, args["input"].(*model.ReviewInput)), true
 
 	case "Mutation.addReview":
 		if e.complexity.Mutation.AddReview == nil {
@@ -142,17 +169,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
 
-	case "Query.reviews":
-		if e.complexity.Query.Reviews == nil {
+	case "Query.getReviews":
+		if e.complexity.Query.GetReviews == nil {
 			break
 		}
 
-		args, err := ec.field_Query_reviews_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getReviews_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.Reviews(childComplexity, args["input"].(*model.UserInfo)), true
+		return e.complexity.Query.GetReviews(childComplexity, args["input"].(*model.UserInfo)), true
 
 	case "Query.user":
 		if e.complexity.Query.User == nil {
@@ -174,6 +201,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Review.Review(childComplexity), true
+
+	case "Review.timestamp":
+		if e.complexity.Review.Timestamp == nil {
+			break
+		}
+
+		return e.complexity.Review.Timestamp(childComplexity), true
 
 	case "User.email":
 		if e.complexity.User.Email == nil {
@@ -275,17 +309,22 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "graph/schema.graphqls", Input: `type Query {
-  reviews(input: UserInfo): [Review]
+  getReviews(input: UserInfo): [AssociatedReview]
   user: User
 }
 
-input UserInfo {
-  currentUser: Boolean
+type AssociatedReview{
+  reviews: [Review]
 }
 
 type Review {
   rating: Float
   review: String
+  timestamp: Time
+}
+
+input UserInfo {
+  currentUser: Boolean
 }
 
 type User {
@@ -302,6 +341,7 @@ type Mutation {
   login(input: Login!): String!
   refreshToken(input: RefreshTokenInput!): String!
   addReview(input: ReviewInput): String!
+  addOffset(input: ReviewInput): String!
 }
 
 input NewUser {
@@ -326,13 +366,31 @@ input ReviewInput{
   token: String!
   rating: Float!
   review: String!
-}`, BuiltIn: false},
+  timestamp: Time!
+}
+
+scalar Time`, BuiltIn: false},
 }
 var parsedSchema = gqlparser.MustLoadSchema(sources...)
 
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_Mutation_addOffset_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.ReviewInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalOReviewInput2ᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐReviewInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_addReview_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -409,7 +467,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_reviews_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_getReviews_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *model.UserInfo
@@ -461,6 +519,38 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AssociatedReview_reviews(ctx context.Context, field graphql.CollectedField, obj *model.AssociatedReview) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssociatedReview",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Reviews, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Review)
+	fc.Result = res
+	return ec.marshalOReview2ᚕᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐReview(ctx, field.Selections, res)
+}
 
 func (ec *executionContext) _Mutation_createUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
@@ -630,7 +720,49 @@ func (ec *executionContext) _Mutation_addReview(ctx context.Context, field graph
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Query_reviews(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+func (ec *executionContext) _Mutation_addOffset(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_addOffset_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AddOffset(rctx, args["input"].(*model.ReviewInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_getReviews(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -647,7 +779,7 @@ func (ec *executionContext) _Query_reviews(ctx context.Context, field graphql.Co
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	rawArgs := field.ArgumentMap(ec.Variables)
-	args, err := ec.field_Query_reviews_args(ctx, rawArgs)
+	args, err := ec.field_Query_getReviews_args(ctx, rawArgs)
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
@@ -655,7 +787,7 @@ func (ec *executionContext) _Query_reviews(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Reviews(rctx, args["input"].(*model.UserInfo))
+		return ec.resolvers.Query().GetReviews(rctx, args["input"].(*model.UserInfo))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -664,9 +796,9 @@ func (ec *executionContext) _Query_reviews(ctx context.Context, field graphql.Co
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Review)
+	res := resTmp.([]*model.AssociatedReview)
 	fc.Result = res
-	return ec.marshalOReview2ᚕᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐReview(ctx, field.Selections, res)
+	return ec.marshalOAssociatedReview2ᚕᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐAssociatedReview(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -834,6 +966,38 @@ func (ec *executionContext) _Review_review(ctx context.Context, field graphql.Co
 	res := resTmp.(*string)
 	fc.Result = res
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Review_timestamp(ctx context.Context, field graphql.CollectedField, obj *model.Review) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Review",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Timestamp, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*time.Time)
+	fc.Result = res
+	return ec.marshalOTime2ᚖtimeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_firstName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -2221,6 +2385,14 @@ func (ec *executionContext) unmarshalInputReviewInput(ctx context.Context, obj i
 			if err != nil {
 				return it, err
 			}
+		case "timestamp":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("timestamp"))
+			it.Timestamp, err = ec.unmarshalNTime2timeᚐTime(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -2254,6 +2426,30 @@ func (ec *executionContext) unmarshalInputUserInfo(ctx context.Context, obj inte
 // endregion ************************** interface.gotpl ***************************
 
 // region    **************************** object.gotpl ****************************
+
+var associatedReviewImplementors = []string{"AssociatedReview"}
+
+func (ec *executionContext) _AssociatedReview(ctx context.Context, sel ast.SelectionSet, obj *model.AssociatedReview) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, associatedReviewImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AssociatedReview")
+		case "reviews":
+			out.Values[i] = ec._AssociatedReview_reviews(ctx, field, obj)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
 
 var mutationImplementors = []string{"Mutation"}
 
@@ -2290,6 +2486,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "addOffset":
+			out.Values[i] = ec._Mutation_addOffset(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2316,7 +2517,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Query")
-		case "reviews":
+		case "getReviews":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
 				defer func() {
@@ -2324,7 +2525,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_reviews(ctx, field)
+				res = ec._Query_getReviews(ctx, field)
 				return res
 			})
 		case "user":
@@ -2368,6 +2569,8 @@ func (ec *executionContext) _Review(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = ec._Review_rating(ctx, field, obj)
 		case "review":
 			out.Values[i] = ec._Review_review(ctx, field, obj)
+		case "timestamp":
+			out.Values[i] = ec._Review_timestamp(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -2716,6 +2919,21 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -2945,6 +3163,53 @@ func (ec *executionContext) marshalN__TypeKind2string(ctx context.Context, sel a
 	return res
 }
 
+func (ec *executionContext) marshalOAssociatedReview2ᚕᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐAssociatedReview(ctx context.Context, sel ast.SelectionSet, v []*model.AssociatedReview) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalOAssociatedReview2ᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐAssociatedReview(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
+}
+
+func (ec *executionContext) marshalOAssociatedReview2ᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐAssociatedReview(ctx context.Context, sel ast.SelectionSet, v *model.AssociatedReview) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._AssociatedReview(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalOBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	res, err := graphql.UnmarshalBoolean(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3061,6 +3326,21 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalString(*v)
+}
+
+func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalTime(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalTime(*v)
 }
 
 func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {

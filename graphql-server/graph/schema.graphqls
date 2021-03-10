@@ -1,15 +1,20 @@
 type Query {
-  reviews(input: UserInfo): [Review]
+  getReviews(input: UserInfo): [AssociatedReview]
   user: User
 }
 
-input UserInfo {
-  currentUser: Boolean
+type AssociatedReview{
+  reviews: [Review]
 }
 
 type Review {
   rating: Float
   review: String
+  timestamp: Time
+}
+
+input UserInfo {
+  currentUser: Boolean
 }
 
 type User {
@@ -26,6 +31,7 @@ type Mutation {
   login(input: Login!): String!
   refreshToken(input: RefreshTokenInput!): String!
   addReview(input: ReviewInput): String!
+  addOffset(input: ReviewInput): String!
 }
 
 input NewUser {
@@ -50,4 +56,7 @@ input ReviewInput{
   token: String!
   rating: Float!
   review: String!
+  timestamp: Time!
 }
+
+scalar Time
