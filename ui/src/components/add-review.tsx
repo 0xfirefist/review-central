@@ -10,13 +10,15 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { gql, useMutation } from '@apollo/client';
 import AppBar from './appbar';
+import moment from 'moment';
 
 const ADDREVIEW = gql`
-  mutation AddReview($token: String!,$rating: Float!,$review: String!) {
+  mutation AddReview($token: String!,$rating: Float!,$review: String!,$timestamp:String!) {
     addReview(input: {
       token: $token,
       rating: $rating,
-      review: $review})
+      review: $review,
+      timestamp: $timestamp})
     }
 `;
 
@@ -73,7 +75,8 @@ function Login() {
       variables: {
         token: event.target.token.value,
         rating: +event.target.rating.value,
-        review: event.target.review.value
+        review: event.target.review.value,
+        timestamp: moment.utc().format()
       }
     })
   }
