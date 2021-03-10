@@ -2,10 +2,6 @@
 
 package model
 
-import (
-	"time"
-)
-
 type AssociatedReview struct {
 	Reviews []*Review `json:"reviews"`
 }
@@ -29,16 +25,16 @@ type RefreshTokenInput struct {
 }
 
 type Review struct {
-	Rating    *float64   `json:"rating"`
-	Review    *string    `json:"review"`
-	Timestamp *time.Time `json:"timestamp"`
+	Rating    *float64 `json:"rating"`
+	Review    *string  `json:"review"`
+	Timestamp *string  `json:"timestamp"`
 }
 
 type ReviewInput struct {
-	Token     string    `json:"token"`
-	Rating    float64   `json:"rating"`
-	Review    string    `json:"review"`
-	Timestamp time.Time `json:"timestamp"`
+	Token     string  `json:"token"`
+	Rating    float64 `json:"rating"`
+	Review    string  `json:"review"`
+	Timestamp string  `json:"timestamp"`
 }
 
 type User struct {

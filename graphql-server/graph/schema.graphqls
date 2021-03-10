@@ -10,7 +10,7 @@ type AssociatedReview{
 type Review {
   rating: Float
   review: String
-  timestamp: Time
+  timestamp: String
 }
 
 input UserInfo {
@@ -56,7 +56,7 @@ input ReviewInput{
   token: String!
   rating: Float!
   review: String!
-  timestamp: Time!
+  timestamp: String!
 }
 
-scalar Time
+# scalar Time

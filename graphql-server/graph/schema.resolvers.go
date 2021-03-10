@@ -86,7 +86,7 @@ func (r *mutationResolver) AddReview(ctx context.Context, input *model.ReviewInp
 	// token should not be used previously
 	valid, err := user.IsTokenValid(input.Token)
 	if valid == true {
-		return "", errors.New("Cannot reuse a token, add offset review instead.")
+		return "", errors.New("cannot reuse a token add offset review instead")
 	}
 
 	// token should be verify by seller
