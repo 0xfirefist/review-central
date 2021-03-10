@@ -17,7 +17,6 @@ import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { ButtonBaseClassKey } from '@material-ui/core';
-
 const useRowStyles = makeStyles({
   root: {
     '& > *': {
@@ -26,17 +25,13 @@ const useRowStyles = makeStyles({
   },
 });
 
-function createData(productname,category) {
+function createData(review_0,rev) {
   return {
-    productname,
-    category,
-    history: [
-      { date: '2020-01-05', email_ID: 'nitesh212@gmail.com',review: 'The Phone was the Worst',price:20000},
-      { date: '2020-01-02', email_ID: 'kalradev@gmail.com',review: 'The Phone is Great',price:45000},
-    ],
+    review_0,
+    reviewhistory:[...rev],
   };
 }
-
+    
 function Row(props) {
   const { row } = props;
   const [open, setOpen] = React.useState(false);
@@ -51,33 +46,29 @@ function Row(props) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          {row.productname}
+          {row.review_0}
         </TableCell>
-        <TableCell align="right">{row.category}</TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={5}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={10}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box margin={1}>
               <Typography variant="h6" gutterBottom component="div">
-                History
+                Review-History
               </Typography>
               <Table size="small" aria-label="purchases">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>email_ID</TableCell>
+                    <TableCell>Rating</TableCell>
                     <TableCell align="right">review</TableCell>
-                    <TableCell align="right">price</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.history.map((historyRow) => (
+                  {row.reviewhistory.map((historyRow) => (
                     <TableRow key={historyRow.date}>
-                      <TableCell component="th" scope="row">{historyRow.date}</TableCell>
-                      <TableCell>{historyRow.email_ID}</TableCell>
+                      <TableCell component="th" scope="row">{historyRow.rating}</TableCell>
                       <TableCell align="right">{historyRow.review}</TableCell>
-                      <TableCell align="right">{historyRow.price}</TableCell>
+                      <TableCell align="right">{historyRow.timestamp}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -92,22 +83,19 @@ function Row(props) {
 
 Row.propTypes = {
   row: PropTypes.shape({
-    productname: PropTypes.string.isRequired,
-    category: PropTypes.string.isRequired,
-    history: PropTypes.arrayOf(
+    review_0: PropTypes.string.isRequired,
+    reviewhistory: PropTypes.arrayOf(
       PropTypes.shape({
-        date: PropTypes.string.isRequired,
-        email_ID: PropTypes.string.isRequired,
+        rating: PropTypes.string.isRequired,
         review: PropTypes.string.isRequired,
-        price: PropTypes.number.isRequired,
+        timestamp: PropTypes.string.isRequired,
       }),
     ).isRequired,
   }).isRequired,
 };
 
 const rows = [
-  createData('Nokia 7 Plus','Phones'),
-  createData('One plus 8','Phones'),
+  createData('Below are the Reviews',[{rating:'2.0',review:'best',timestamp:'10:30'}, {rating:'3.0',review:'greAT',timestamp:'10:30'}]),
 ];
 
 export default function CollapsibleTable() {
@@ -117,12 +105,11 @@ export default function CollapsibleTable() {
         <TableHead>
           <TableRow>
             <TableCell />
-            <TableCell>Products</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
           {rows.map((row) => (
-            <Row key={row.productname} row={row} />
+            <Row key={row.review_0} row={row} />
           ))}
         </TableBody>
       </Table>
