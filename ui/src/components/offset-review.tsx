@@ -9,15 +9,16 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { gql, useMutation } from '@apollo/client';
-import { useCookies } from "react-cookie";
 import AppBar from './appbar';
+import moment from 'moment';
 
-const LOGIN = gql`
-  mutation Login($email: String!, $password: String!) {
-      login(input: {
-        email: $email,
-        password: $password
-      })
+const OFFSETREVIEW = gql`
+  mutation OFFSETReview($token: String!,$rating: Float!,$review: String!,$timestamp:String!) {
+    offsetReview(input: {
+      token: $token,
+      rating: $rating,
+      review: $review,S
+      timestamp: $timestamp})
     }
 `;
 
@@ -48,7 +49,12 @@ const useStyles = makeStyles((theme) => ({
   form: {
     width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(1),
+  },form1: {
+    width: '100%', // Fix IE 11 issue.
+    marginTop: theme.spacing(1),
+    height: '150%',
   },
+
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
@@ -56,25 +62,21 @@ const useStyles = makeStyles((theme) => ({
 
 function Login() {
   const classes = useStyles();
-  const [_, setCookie] = useCookies(["user"]);
 
-  const [login] = useMutation(LOGIN, {
+  const [offsetReview] = useMutation(OFFSETREVIEW, {
     onCompleted(data) {
-      // localStorage.setItem("token",data.createUser)
-      setCookie("user", data.login, {      
-        path: "/",
-        // secure: true
-        sameSite: 'strict'
-      });
+      console.log(data.offsetReview)
     }
   });
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
-    login({
+    offsetReview({
       variables: {
-        email: event.target.email.value,
-        password: event.target.password.value
+        token: event.target.token.value,
+        rating: +event.target.rating.value,
+        review: event.target.review.value,
+        timestamp: moment.utc().format()
       }
     })
   }
@@ -94,10 +96,10 @@ function Login() {
             margin="normal"
             required
             fullWidth
-            id="email"
-            label="Email Address"
-            name="email"
-            autoComplete="email"
+            id="token"
+            label="Token"
+            name="token"
+            autoComplete="token"
             autoFocus
           />
           <TextField
@@ -105,32 +107,20 @@ function Login() {
             margin="normal"
             required
             fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            autoComplete="current-password"
+            name="rating"
+            label="Rating"
+            type="rating"
+            id="rating"
           />
           <TextField
             variant="outlined"
             margin="normal"
             required
             fullWidth
-            name="review_id"
-            label="Review_ID"
-            id="review_id"
-            autoComplete="review_id"
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="productname"
-            label="Product Name"
-            name="productname"
-            autoComplete="productname"
-            autoFocus
+            name="review"
+            label="Review"
+            type="review"
+            id="review"
           />
           <Button
             type="submit"
@@ -139,7 +129,7 @@ function Login() {
             color="primary"
             className={classes.submit}
           >
-            Add Offset Review
+            Offset Review
           </Button>
         </form>
       </div>
