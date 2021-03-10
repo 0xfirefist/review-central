@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"net/http"
 )
 
@@ -40,7 +41,10 @@ func Middleware() func(http.Handler) http.Handler {
 }
 
 // ForContext finds the user from the context. REQUIRES Middleware to have run.
-func ForContext(ctx context.Context) string {
-	raw := ctx.Value("token").(string)
-	return raw
+func ForContext(ctx context.Context) (string, error) {
+	raw := ctx.Value("token")
+	if raw == nil {
+		return "", errors.New("token not found")
+	}
+	return raw.(string), nil
 }
