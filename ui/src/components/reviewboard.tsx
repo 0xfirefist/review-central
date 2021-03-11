@@ -16,8 +16,6 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { gql, useQuery, useReactiveVar } from '@apollo/client';
 import AppBar from './appbar'
-import Link from 'react-router-dom'
-import { FormatAlignLeft } from '@material-ui/icons';
 
 const GETREVIEWS = gql`
   query GetReviews($currentUser: Boolean!) {
@@ -81,9 +79,9 @@ function Row(props) {
                       <TableCell component="th" scope="row">{review.rating}</TableCell>
                       <TableCell align="right">{review.review}</TableCell>
                       <TableCell align="right">{review.timestamp}</TableCell>
-                      <a href="/offset-review">Offset-Review</a>
                     </TableRow>
                   ))}
+                  <TableCell>{<a href="/offset-review">Offset-Review</a>}</TableCell>
                 </TableBody>
               </Table>
             </Box>
