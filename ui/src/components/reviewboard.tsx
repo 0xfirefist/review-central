@@ -1,6 +1,4 @@
 import React from 'react';
-import Button from '@material-ui/core/Button';
-import { Link } from "react-router-dom";
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
@@ -16,7 +14,23 @@ import Typography from '@material-ui/core/Typography';
 import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
-import { ButtonBaseClassKey } from '@material-ui/core';
+import { gql, useQuery, useReactiveVar } from '@apollo/client';
+import AppBar from './appbar'
+
+const GETREVIEWS = gql`
+  query GetReviews($currentUser: Boolean!) {
+    getReviews(input: {
+      currentUser: $currentUser,
+      }) {
+        reviews {
+          rating
+          review
+          timestamp
+        }
+    }
+  }
+`;
+
 const useRowStyles = makeStyles({
   root: {
     '& > *': {
@@ -24,18 +38,13 @@ const useRowStyles = makeStyles({
     },
   },
 });
-
-function createData(review_0,rev) {
-  return {
-    review_0,
-    reviewhistory:[...rev],
-  };
-}
     
 function Row(props) {
-  const { row } = props;
+  const { associatedReview } = props;
   const [open, setOpen] = React.useState(false);
   const classes = useRowStyles();
+  var reviews = associatedReview.reviews;
+  // sort reviews(based on timestamp)
 
   return (
     <React.Fragment>
@@ -46,7 +55,7 @@ function Row(props) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          {row.review_0}
+          {reviews[0].review}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -64,11 +73,11 @@ function Row(props) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {row.reviewhistory.map((historyRow) => (
-                    <TableRow key={historyRow.date}>
-                      <TableCell component="th" scope="row">{historyRow.rating}</TableCell>
-                      <TableCell align="right">{historyRow.review}</TableCell>
-                      <TableCell align="right">{historyRow.timestamp}</TableCell>
+                  {reviews.map((review) => (
+                    <TableRow>
+                      <TableCell component="th" scope="row">{review.rating}</TableCell>
+                      <TableCell align="right">{review.review}</TableCell>
+                      <TableCell align="right">{review.timestamp}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -82,38 +91,69 @@ function Row(props) {
 }
 
 Row.propTypes = {
-  row: PropTypes.shape({
-    review_0: PropTypes.string.isRequired,
-    reviewhistory: PropTypes.arrayOf(
-      PropTypes.shape({
-        rating: PropTypes.string.isRequired,
-        review: PropTypes.string.isRequired,
-        timestamp: PropTypes.string.isRequired,
-      }),
-    ).isRequired,
-  }).isRequired,
+  // row: PropTypes.shape({
+  //   review_0: PropTypes.string.isRequired,
+  //   reviewhistory: PropTypes.arrayOf(
+  //     PropTypes.shape({
+  //       rating: PropTypes.string.isRequired,
+  //       review: PropTypes.string.isRequired,
+  //       timestamp: PropTypes.string.isRequired,
+  //     }),
+  //   ).isRequired,
+  // }).isRequired,
+  associatedReview:PropTypes.any,
 };
 
-const rows = [
-  createData('Below are the Reviews',[{rating:'2.0',review:'best',timestamp:'10:30'}, {rating:'3.0',review:'greAT',timestamp:'10:30'}]),
-];
+function ReviewBoard(props) {
+  const { currentUser } = props;
+  const { loading, error, data } = useQuery(GETREVIEWS, {
+    variables: { currentUser: currentUser },
+  });
 
-export default function CollapsibleTable() {
+  if(loading) {
+    return (
+      <div>
+        <AppBar />
+        <div>Loading ...</div>  
+      </div>
+    )
+  }
+  console.log(data)
+
   return (
-    <TableContainer component={Paper}>
-      <Table aria-label="collapsible table">
-        <TableHead>
-          <TableRow>
-            <TableCell />
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {rows.map((row) => (
-            <Row key={row.review_0} row={row} />
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-
+    <div>
+        <AppBar />
+         <TableContainer component={Paper}>
+         <Table aria-label="collapsible table">
+           <TableHead>
+             <TableRow>
+               <TableCell />
+             </TableRow>
+           </TableHead>
+           <TableBody>
+             {/* {formatData(associatedReview).map} */}
+             {data.getReviews.map((associatedReview)=>(
+               <Row associatedReview={associatedReview} />
+             ))}
+           </TableBody>
+         </Table>
+       </TableContainer>
+    </div>
   );
 }
+
+ReviewBoard.propTypes = {
+  // row: PropTypes.shape({
+  //   review_0: PropTypes.string.isRequired,
+  //   reviewhistory: PropTypes.arrayOf(
+  //     PropTypes.shape({
+  //       rating: PropTypes.string.isRequired,
+  //       review: PropTypes.string.isRequired,
+  //       timestamp: PropTypes.string.isRequired,
+  //     }),
+  //   ).isRequired,
+  // }).isRequired,
+  currentUser:PropTypes.bool,
+};
+
+export default ReviewBoard
