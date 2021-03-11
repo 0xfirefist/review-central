@@ -1,6 +1,7 @@
 
 import React from 'react';
 import Button from '@material-ui/core/Button';
+import PropTypes from 'prop-types';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import TextField from '@material-ui/core/TextField';
 import { Link } from "react-router-dom";
@@ -17,7 +18,7 @@ const OFFSETREVIEW = gql`
     offsetReview(input: {
       token: $token,
       rating: $rating,
-      review: $review,S
+      review: $review,
       timestamp: $timestamp})
     }
 `;
@@ -60,7 +61,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function Login() {
+function OffsetReview({ match }) {
+  let params = match.params;
   const classes = useStyles();
 
   const [offsetReview] = useMutation(OFFSETREVIEW, {
@@ -101,6 +103,8 @@ function Login() {
             name="token"
             autoComplete="token"
             autoFocus
+            value={params.token}
+            disabled
           />
           <TextField
             variant="outlined"
@@ -141,4 +145,4 @@ function Login() {
   );
 }
 
-export default Login
+export default OffsetReview

@@ -28,7 +28,7 @@ ReactDOM.render(
                     <Route exact path='/' render={() => (
                       <ReviewBoard currentUser={false} />
                     )}/>
-                    <Route exact path='/offset-review' component={OffsetReview}/>
+                    <Route exact path='/offset-review/:token' component={OffsetReview}/>
                     <Route exact path='/login' component={Login}/>
                     <Route exact path='/register' component={Register}/>
                     <Route exact path='/add-review' component={AddReview}/>
