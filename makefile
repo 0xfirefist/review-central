@@ -11,3 +11,8 @@ build-ui:
 
 dev-ui:
 	cd ui;npm run start;cd ..;
+
+
+build-and-run:
+	cd ui;npm run build;cd ..;
+	go run main.go;
