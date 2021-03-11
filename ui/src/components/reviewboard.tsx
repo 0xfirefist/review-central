@@ -22,6 +22,7 @@ const GETREVIEWS = gql`
     getReviews(input: {
       currentUser: $currentUser,
       }) {
+        token
         reviews {
           rating
           review
@@ -40,7 +41,7 @@ const useRowStyles = makeStyles({
 });
     
 function Row(props) {
-  const { associatedReview } = props;
+  const { associatedReview, currentUser } = props;
   const [open, setOpen] = React.useState(false);
   const classes = useRowStyles();
   var reviews = associatedReview.reviews;
@@ -81,7 +82,9 @@ function Row(props) {
                       <TableCell align="right">{review.timestamp}</TableCell>
                     </TableRow>
                   ))}
-                  <TableCell>{<a href="/offset-review">Offset-Review</a>}</TableCell>
+                  {currentUser && 
+                    <TableCell>{<a href={`#/offset-review/${associatedReview.token}`}>Offset Review</a>}</TableCell>
+                  }
                 </TableBody>
               </Table>
             </Box>
@@ -104,6 +107,7 @@ Row.propTypes = {
   //   ).isRequired,
   // }).isRequired,
   associatedReview:PropTypes.any,
+  currentUser:PropTypes.bool,
 };
 
 function ReviewBoard(props) {
@@ -135,7 +139,7 @@ function ReviewBoard(props) {
            <TableBody>
              {/* {formatData(associatedReview).map} */}
              {data.getReviews.map((associatedReview)=>(
-               <Row associatedReview={associatedReview} />
+               <Row associatedReview={associatedReview} currentUser={currentUser}/>
              ))}
            </TableBody>
          </Table>

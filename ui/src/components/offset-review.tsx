@@ -13,9 +13,9 @@ import { gql, useMutation } from '@apollo/client';
 import AppBar from './appbar';
 import moment from 'moment';
 
-const OFFSETREVIEW = gql`
-  mutation OFFSETReview($token: String!,$rating: Float!,$review: String!,$timestamp:String!) {
-    offsetReview(input: {
+const ADDOFFSET = gql`
+  mutation AddOffset($token: String!,$rating: Float!,$review: String!,$timestamp:String!) {
+    addOffset(input: {
       token: $token,
       rating: $rating,
       review: $review,
@@ -65,7 +65,7 @@ function OffsetReview({ match }) {
   let params = match.params;
   const classes = useStyles();
 
-  const [offsetReview] = useMutation(OFFSETREVIEW, {
+  const [addOffset] = useMutation(ADDOFFSET, {
     onCompleted(data) {
       console.log(data.offsetReview)
     }
@@ -73,7 +73,7 @@ function OffsetReview({ match }) {
 
   const handleSubmit = (event: any) => {
     event.preventDefault()
-    offsetReview({
+    addOffset({
       variables: {
         token: event.target.token.value,
         rating: +event.target.rating.value,
