@@ -15,6 +15,7 @@ import Paper from '@material-ui/core/Paper';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { gql, useQuery, useReactiveVar } from '@apollo/client';
+import moment from 'moment';
 import AppBar from './appbar'
 
 const GETREVIEWS = gql`
@@ -42,10 +43,16 @@ const useRowStyles = makeStyles({
     
 function Row(props) {
   const { associatedReview, currentUser } = props;
+  console.log(associatedReview)
   const [open, setOpen] = React.useState(false);
   const classes = useRowStyles();
-  var reviews = associatedReview.reviews;
+  let reviews = associatedReview.reviews;
   // sort reviews(based on timestamp)
+  reviews.sort(function (left, right) {
+    return moment.utc(right.timestamp).diff(moment.utc(left.timestamp))
+  });
+
+  // console.log(reviews)
 
   return (
     <React.Fragment>
@@ -124,7 +131,7 @@ function ReviewBoard(props) {
       </div>
     )
   }
-  console.log(data)
+  // console.log(data)
 
   return (
     <div>
