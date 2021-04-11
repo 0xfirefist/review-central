@@ -18,6 +18,51 @@ import { gql, useQuery, useReactiveVar } from '@apollo/client';
 import moment from 'moment';
 import AppBar from './appbar'
 
+const FakeProducts = [
+  {
+    Name: "OnePlus",
+    Manufacturer: "China",
+    Model: "6",
+    Vendor: "Amazon"
+  },
+  {
+    Name: "Nokia 7 Plus",
+    Manufacturer: "HMT",
+    Model: "7 Plus",
+    Vendor: "Flipkart"
+  },
+  {
+    Name: "iphone",
+    Manufacturer: "iphone",
+    Model: "6s",
+    Vendor: "Amazon"
+  },
+  {
+    Name: "Boiler",
+    Manufacturer: "Philips",
+    Model: " 7.1",
+    Vendor: "Flipkart"
+  },
+  {
+    Name: "JBL Flip",
+    Manufacturer: "JBL",
+    Model: "5.0",
+    Vendor: "Amazon"
+  },
+  {
+    Name: "ppoprnings",
+    Manufacturer: "BAlaji",
+    Model: "1.0",
+    Vendor: "Paytm"
+  },
+  {
+    Name: "Moong Daal",
+    Manufacturer: "Haldiram",
+    Model: "1.2",
+    Vendor: "Amazon"
+  }
+]
+
 const GETREVIEWS = gql`
   query GetReviews($currentUser: Boolean!) {
     getReviews(input: {
@@ -40,7 +85,7 @@ const useRowStyles = makeStyles({
     },
   },
 });
-    
+
 function Row(props) {
   const { associatedReview, currentUser } = props;
   console.log(associatedReview)
@@ -54,6 +99,10 @@ function Row(props) {
 
   // console.log(reviews)
 
+  var randNum = Math.floor(Math.random() * 7);
+  // var randNum = 0;
+
+
   return (
     <React.Fragment>
       <TableRow className={classes.root}>
@@ -63,7 +112,16 @@ function Row(props) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          {reviews[0].review}
+          {FakeProducts[randNum].Name}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {FakeProducts[randNum].Manufacturer}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {FakeProducts[randNum].Model}
+        </TableCell>
+        <TableCell component="th" scope="row">
+          {FakeProducts[randNum].Vendor}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -89,7 +147,7 @@ function Row(props) {
                       <TableCell align="right">{review.timestamp}</TableCell>
                     </TableRow>
                   ))}
-                  {currentUser && 
+                  {currentUser &&
                     <TableCell>{<a href={`#/offset-review/${associatedReview.token}`}>Offset Review</a>}</TableCell>
                   }
                 </TableBody>
@@ -113,8 +171,8 @@ Row.propTypes = {
   //     }),
   //   ).isRequired,
   // }).isRequired,
-  associatedReview:PropTypes.any,
-  currentUser:PropTypes.bool,
+  associatedReview: PropTypes.any,
+  currentUser: PropTypes.bool,
 };
 
 function ReviewBoard(props) {
@@ -122,12 +180,13 @@ function ReviewBoard(props) {
   const { loading, error, data } = useQuery(GETREVIEWS, {
     variables: { currentUser: currentUser },
   });
+  const classes = useRowStyles();
 
-  if(loading) {
+  if (loading) {
     return (
       <div>
         <AppBar />
-        <div>Loading ...</div>  
+        <div>Loading ...</div>
       </div>
     )
   }
@@ -135,22 +194,38 @@ function ReviewBoard(props) {
 
   return (
     <div>
-        <AppBar />
-         <TableContainer component={Paper}>
-         <Table aria-label="collapsible table">
-           <TableHead>
-             <TableRow>
-               <TableCell />
-             </TableRow>
-           </TableHead>
-           <TableBody>
-             {/* {formatData(associatedReview).map} */}
-             {data.getReviews.map((associatedReview)=>(
-               <Row associatedReview={associatedReview} currentUser={currentUser}/>
-             ))}
-           </TableBody>
-         </Table>
-       </TableContainer>
+      <AppBar />
+      <TableContainer component={Paper}>
+        <Table aria-label="collapsible table">
+          <TableHead>
+            <TableRow>
+              <TableCell />
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            <TableRow className={classes.root}>
+              <TableCell>
+              </TableCell>
+              <TableCell component="th" scope="row">
+                Product Name
+              </TableCell>
+              <TableCell component="th" scope="row">
+                Manufacturer
+              </TableCell>
+              <TableCell component="th" scope="row">
+                Model
+              </TableCell>
+              <TableCell component="th" scope="row">
+                Vendor
+              </TableCell>
+            </TableRow>
+            {/* {formatData(associatedReview).map} */}
+            {data.getReviews.map((associatedReview) => (
+              <Row associatedReview={associatedReview} currentUser={currentUser} />
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 }
@@ -166,7 +241,7 @@ ReviewBoard.propTypes = {
   //     }),
   //   ).isRequired,
   // }).isRequired,
-  currentUser:PropTypes.bool,
+  currentUser: PropTypes.bool,
 };
 
 export default ReviewBoard
