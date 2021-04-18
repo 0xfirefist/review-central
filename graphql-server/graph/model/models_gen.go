@@ -23,10 +23,10 @@ type NewUser struct {
 }
 
 type Product struct {
-	Name         string `json:"Name"`
-	Manufacturer string `json:"Manufacturer"`
-	Model        string `json:"Model"`
-	Vendor       string `json:"Vendor"`
+	Name         string `json:"name"`
+	Manufacturer string `json:"manufacturer"`
+	Model        string `json:"model"`
+	Vendor       string `json:"vendor"`
 }
 
 type RefreshTokenInput struct {

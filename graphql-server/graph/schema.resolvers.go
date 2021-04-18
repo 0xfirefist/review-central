@@ -22,15 +22,6 @@ import (
 	"github.com/kalradev/review-central/pkg/jwt"
 )
 
-func (r *associatedReviewResolver) Product(ctx context.Context, obj *model.AssociatedReview) (*model.Product, error) {
-	return &model.Product{
-		Name:         "Moong Daal",
-		Manufacturer: "Haldiram",
-		Model:        "1.2",
-		Vendor:       "Amazon",
-	}, nil
-}
-
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
 	user := users.User{
 		FirstName:  *input.FirstName,
@@ -174,35 +165,14 @@ func (r *mutationResolver) AddOffset(ctx context.Context, input *model.ReviewInp
 func (r *queryResolver) GetReviews(ctx context.Context, input *model.UserInfo) ([]*model.AssociatedReview, error) {
 	var associatedReviews []*model.AssociatedReview
 	var myClient = &http.Client{Timeout: 10 * time.Second}
+	var tokens []string
+	var err error
 
 	// general reviews
 	if input != nil && input.CurrentUser != nil && *input.CurrentUser == false {
-		tokens, err := contracts.GetTokens()
+		tokens, err = contracts.GetTokens()
 		if err != nil {
 			return nil, errors.New("Couldn't get review tokens")
-		}
-
-		for _, token := range tokens {
-			var reviews []*model.Review
-
-			// get hash of every token
-			hashes, err := contracts.Get(token)
-			if err != nil {
-				return nil, errors.New("Coudn't get ipfs hash")
-			}
-			for _, hash := range hashes {
-				r, err := myClient.Get(fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash))
-				if err != nil {
-					log.Println("error getting response from ipfs")
-				}
-				defer r.Body.Close()
-				log.Println(hash)
-				var rev model.Review
-				json.NewDecoder(r.Body).Decode(&rev)
-				reviews = append(reviews, &rev)
-			}
-
-			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token, Reviews: reviews})
 		}
 	} else {
 		// get user
@@ -222,34 +192,48 @@ func (r *queryResolver) GetReviews(ctx context.Context, input *model.UserInfo) (
 			return nil, errors.New("Access Denied")
 		}
 
-		tokens, err := user.GetTokens()
+		tokens, err = user.GetTokens()
 		if err != nil {
 			return nil, errors.New("Coudn't get tokens")
 		}
-		log.Println(tokens)
+	}
 
-		for _, token := range tokens {
-			var reviews []*model.Review
+	for _, token := range tokens {
+		var reviews []*model.Review
 
-			// get hash of every token
-			hashes, err := contracts.Get(token)
-			log.Println(hashes)
+		// get hash of every token
+		hashes, err := contracts.Get(token)
+		if err != nil {
+			return nil, errors.New("Coudn't get ipfs hash")
+		}
+		for _, hash := range hashes {
+			r, err := myClient.Get(fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash))
 			if err != nil {
-				return nil, errors.New("Coudn't get ipfs hash")
+				log.Println("error getting response from ipfs")
 			}
-			for _, hash := range hashes {
-				r, err := myClient.Get(fmt.Sprintf("https://ipfs.infura.io/ipfs/%s", hash))
-				if err != nil {
-					log.Println("error getting response from ipfs")
-				}
-				defer r.Body.Close()
+			defer r.Body.Close()
+			// log.Println(hash)
+			var rev model.Review
+			json.NewDecoder(r.Body).Decode(&rev)
+			reviews = append(reviews, &rev)
+		}
 
-				var rev model.Review
-				json.NewDecoder(r.Body).Decode(&rev)
-				reviews = append(reviews, &rev)
-			}
-
-			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token, Reviews: reviews})
+		// get product details
+		productDetails,err := users.GetProduct(token)
+		if err!=nil {
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token,
+				Reviews: reviews,
+			}) 
+		} else {
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token,
+				Reviews: reviews,
+				Product: &model.Product{
+					Name:         productDetails[0],
+					Manufacturer: productDetails[1],
+					Model:        productDetails[2],
+					Vendor:       productDetails[3],
+				},
+			})
 		}
 	}
 
@@ -288,17 +272,11 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	// return nil, nil
 }
 
-// AssociatedReview returns generated.AssociatedReviewResolver implementation.
-func (r *Resolver) AssociatedReview() generated.AssociatedReviewResolver {
-	return &associatedReviewResolver{r}
-}
-
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
-type associatedReviewResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

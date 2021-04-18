@@ -18,51 +18,6 @@ import { gql, useQuery, useReactiveVar } from '@apollo/client';
 import moment from 'moment';
 import AppBar from './appbar'
 
-// const FakeProducts = [
-//   {
-//     Name: "OnePlus",
-//     Manufacturer: "China",
-//     Model: "6",
-//     Vendor: "Amazon"
-//   },
-//   {
-//     Name: "Nokia 7 Plus",
-//     Manufacturer: "HMT",
-//     Model: "7 Plus",
-//     Vendor: "Flipkart"
-//   },
-//   {
-//     Name: "iphone",
-//     Manufacturer: "iphone",
-//     Model: "6s",
-//     Vendor: "Amazon"
-//   },
-//   {
-//     Name: "Boiler",
-//     Manufacturer: "Philips",
-//     Model: " 7.1",
-//     Vendor: "Flipkart"
-//   },
-//   {
-//     Name: "JBL Flip",
-//     Manufacturer: "JBL",
-//     Model: "5.0",
-//     Vendor: "Amazon"
-//   },
-//   {
-//     Name: "ppoprnings",
-//     Manufacturer: "BAlaji",
-//     Model: "1.0",
-//     Vendor: "Paytm"
-//   },
-//   {
-//     Name: "Moong Daal",
-//     Manufacturer: "Haldiram",
-//     Model: "1.2",
-//     Vendor: "Amazon"
-//   }
-// ]
-
 const GETREVIEWS = gql`
   query GetReviews($currentUser: Boolean!) {
     getReviews(input: {
@@ -94,20 +49,15 @@ const useRowStyles = makeStyles({
 
 function Row(props) {
   const { associatedReview, currentUser } = props;
-  console.log(associatedReview)
+  // console.log(associatedReview)
   const [open, setOpen] = React.useState(false);
   const classes = useRowStyles();
   let reviews = associatedReview.reviews;
+  let product = associatedReview.product;
   // sort reviews(based on timestamp)
-  reviews.sort(function (left, right) {
+  reviews && reviews.sort(function (left, right) {
     return moment.utc(right.timestamp).diff(moment.utc(left.timestamp))
   });
-
-  // console.log(reviews)
-
-  // var randNum = Math.floor(Math.random() * 7);
-  // var randNum = 0;
-
 
   return (
     <React.Fragment>
@@ -118,16 +68,16 @@ function Row(props) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          {associatedReview.product.Name}
+          {product && product.name}
         </TableCell>
         <TableCell component="th" scope="row">
-          {associatedReview.product.Manufacturer}
+          {product && product.manufacturer}
         </TableCell>
         <TableCell component="th" scope="row">
-          {associatedReview.product.Model}
+          {product && product.model}
         </TableCell>
         <TableCell component="th" scope="row">
-          {associatedReview.product.Vendor}
+          {product && product.vendor}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -146,14 +96,14 @@ function Row(props) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {reviews.map((review) => (
+                  {reviews && reviews.map((review) => (
                     <TableRow>
                       <TableCell component="th" scope="row">{review.rating}</TableCell>
                       <TableCell align="right">{review.review}</TableCell>
                       <TableCell align="right">{review.timestamp}</TableCell>
                     </TableRow>
                   ))}
-                  {currentUser &&
+                  {currentUser && associatedReview.token && 
                     <TableCell>{<a href={`#/offset-review/${associatedReview.token}`}>Offset Review</a>}</TableCell>
                   }
                 </TableBody>
@@ -196,7 +146,7 @@ function ReviewBoard(props) {
       </div>
     )
   }
-  // console.log(data)
+  console.log(data)
 
   return (
     <div>
@@ -225,8 +175,7 @@ function ReviewBoard(props) {
                 Vendor
               </TableCell>
             </TableRow>
-            {/* {formatData(associatedReview).map} */}
-            {data.getReviews.map((associatedReview) => (
+            {data && data.getReviews && data.getReviews.map((associatedReview) => (
               <Row associatedReview={associatedReview} currentUser={currentUser} />
             ))}
           </TableBody>

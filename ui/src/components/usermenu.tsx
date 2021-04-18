@@ -35,7 +35,9 @@ export default function UserMenu() {
   const [cookies, setCookie, removeCookie] = useCookies(["user"]);
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const { loading, error, data } = useQuery(USER);
+  const { loading, error, data } = useQuery(USER, {
+    fetchPolicy: "no-cache"}
+  );
   // console.log(data)
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -50,6 +52,15 @@ export default function UserMenu() {
     removeCookie("user")
     handleClose()
     window.location.href = "#"
+  }
+
+  if(error){
+    logout()
+    return <Button color="inherit">
+        <Link to="/login" variant="body2" className={classes.link}>
+            Login/Register
+        </Link>
+    </Button>
   }
 
   return (
@@ -79,7 +90,7 @@ export default function UserMenu() {
                     Add Review
                   </Link>
                 </MenuItem>
-                <MenuItem>
+                <MenuItem onClick={handleClose}>
                   <Link to="/my-reviews" variant="body2" className={classes.link}>
                     My Reviews
                   </Link>

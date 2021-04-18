@@ -2,10 +2,16 @@ package users
 
 import (
 	"log"
+	"math/rand"
 
 	"github.com/kalradev/review-central/internal/db"
 	"gorm.io/gorm"
 )
+
+var vendors = []string{"Amazon", "Flipkart", "Paytm Mall", "Snapdeal", "Myntra"}
+var manufacturers = []string{"Oppo","Vivo","Oneplus","JBL","Sony"}
+var names = []string{"Mobile","Tablet","Speaker","Earphone","Charger"}
+var models = []string{"2.3","1.0","2.5","5.0","7.0"}
 
 type User struct {
 	// Username   string `json:"username"`
@@ -22,6 +28,11 @@ type TokenMap struct {
 	gorm.Model
 	Token  string
 	UserID string
+	// adding product details for now
+	ProductName string
+	ProductManufacturer string
+	ProductModel string
+	ProductVendor string
 	User   User
 }
 
@@ -83,9 +94,28 @@ func (u *User) AddToken(token string) error {
 	res := database.Create(&TokenMap{
 		Token: token,
 		User:  *u,
+		ProductName: names[rand.Intn(5)],
+		ProductManufacturer: manufacturers[rand.Intn(5)],
+		ProductModel: models[rand.Intn(5)],
+		ProductVendor: vendors[rand.Intn(5)],
 	})
 
 	return res.Error
+}
+
+func GetProduct(token string) ([]string, error) {
+	database, err := db.GetDBInstance()
+	if err != nil {
+		log.Println("Error getting DB instance")
+		return nil, err
+	}
+
+	var tokenMap TokenMap
+	res := database.First(&tokenMap, "token=?", token)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return []string{tokenMap.ProductName,tokenMap.ProductManufacturer,tokenMap.ProductModel,tokenMap.ProductVendor}, nil
 }
 
 func (u *User) GetTokens() ([]string, error) {
