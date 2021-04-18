@@ -11,7 +11,13 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { gql, useMutation } from '@apollo/client';
 import AppBar from './appbar';
+import Snackbar from '@material-ui/core/Snackbar';
+import MuiAlert from '@material-ui/lab/Alert';
 import moment from 'moment';
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
 
 const ADDOFFSET = gql`
   mutation AddOffset($token: String!,$rating: Float!,$review: String!,$timestamp:String!) {
@@ -62,12 +68,17 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function OffsetReview({ match }) {
+  const [successMes, setSuccessOpen] = React.useState(false);
+  const [errorMes, setErrorOpen] = React.useState(false);
   let params = match.params;
   const classes = useStyles();
 
   const [addOffset] = useMutation(ADDOFFSET, {
-    onCompleted(data) {
-      console.log(data.offsetReview)
+    onCompleted(_) {
+      setSuccessOpen(true);
+    },
+    onError(_){
+      setErrorOpen(true);
     }
   });
 
@@ -82,6 +93,15 @@ function OffsetReview({ match }) {
       }
     })
   }
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setErrorOpen(false);
+    setSuccessOpen(false);
+  };
+
 
   return (
     <div>
@@ -140,6 +160,18 @@ function OffsetReview({ match }) {
       <Box mt={8}>
         <Copyright />
       </Box>
+
+      <Snackbar open={successMes} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="success">
+          Review Offsetted Succesfully!
+        </Alert>
+      </Snackbar>
+      <Snackbar open={errorMes} autoHideDuration={6000} onClose={handleClose}>
+        <Alert onClose={handleClose} severity="error">
+          Error
+        </Alert>
+      </Snackbar>
+
     </Container>
     </div>
   );
