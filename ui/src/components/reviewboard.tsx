@@ -16,6 +16,8 @@ import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
 import { gql, useQuery, useReactiveVar } from '@apollo/client';
 import moment from 'moment';
+import Container from '@material-ui/core/Container';
+import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from './appbar'
 
 const GETREVIEWS = gql`
@@ -100,7 +102,7 @@ function Row(props) {
                     <TableRow>
                       <TableCell component="th" scope="row">{review.rating}</TableCell>
                       <TableCell align="right">{review.review}</TableCell>
-                      <TableCell align="right">{review.timestamp}</TableCell>
+                      <TableCell align="right">{moment.utc(review.timestamp).format("MMM Do YYYY, h:mm:ss a")}</TableCell>
                     </TableRow>
                   ))}
                   {currentUser && associatedReview.token && 
@@ -151,6 +153,8 @@ function ReviewBoard(props) {
   return (
     <div>
       <AppBar />
+      <Container component="main">
+        <CssBaseline />
       <TableContainer component={Paper}>
         <Table aria-label="collapsible table">
           <TableHead>
@@ -181,6 +185,7 @@ function ReviewBoard(props) {
           </TableBody>
         </Table>
       </TableContainer>
+      </Container>
     </div>
   );
 }
