@@ -4,6 +4,7 @@ package model
 
 type AssociatedReview struct {
 	Token   *string   `json:"token"`
+	Product *Product  `json:"product"`
 	Reviews []*Review `json:"reviews"`
 }
 
@@ -19,6 +20,13 @@ type NewUser struct {
 	Email      *string `json:"email"`
 	Password   *string `json:"password"`
 	Number     *string `json:"number"`
+}
+
+type Product struct {
+	Name         string `json:"Name"`
+	Manufacturer string `json:"Manufacturer"`
+	Model        string `json:"Model"`
+	Vendor       string `json:"Vendor"`
 }
 
 type RefreshTokenInput struct {

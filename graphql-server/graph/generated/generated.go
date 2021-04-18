@@ -34,6 +34,7 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	AssociatedReview() AssociatedReviewResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
@@ -43,6 +44,7 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AssociatedReview struct {
+		Product func(childComplexity int) int
 		Reviews func(childComplexity int) int
 		Token   func(childComplexity int) int
 	}
@@ -53,6 +55,13 @@ type ComplexityRoot struct {
 		CreateUser   func(childComplexity int, input model.NewUser) int
 		Login        func(childComplexity int, input model.Login) int
 		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
+	}
+
+	Product struct {
+		Manufacturer func(childComplexity int) int
+		Model        func(childComplexity int) int
+		Name         func(childComplexity int) int
+		Vendor       func(childComplexity int) int
 	}
 
 	Query struct {
@@ -75,6 +84,9 @@ type ComplexityRoot struct {
 	}
 }
 
+type AssociatedReviewResolver interface {
+	Product(ctx context.Context, obj *model.AssociatedReview) (*model.Product, error)
+}
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.NewUser) (string, error)
 	Login(ctx context.Context, input model.Login) (string, error)
@@ -101,6 +113,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AssociatedReview.product":
+		if e.complexity.AssociatedReview.Product == nil {
+			break
+		}
+
+		return e.complexity.AssociatedReview.Product(childComplexity), true
 
 	case "AssociatedReview.reviews":
 		if e.complexity.AssociatedReview.Reviews == nil {
@@ -175,6 +194,34 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.RefreshToken(childComplexity, args["input"].(model.RefreshTokenInput)), true
+
+	case "Product.Manufacturer":
+		if e.complexity.Product.Manufacturer == nil {
+			break
+		}
+
+		return e.complexity.Product.Manufacturer(childComplexity), true
+
+	case "Product.Model":
+		if e.complexity.Product.Model == nil {
+			break
+		}
+
+		return e.complexity.Product.Model(childComplexity), true
+
+	case "Product.Name":
+		if e.complexity.Product.Name == nil {
+			break
+		}
+
+		return e.complexity.Product.Name(childComplexity), true
+
+	case "Product.Vendor":
+		if e.complexity.Product.Vendor == nil {
+			break
+		}
+
+		return e.complexity.Product.Vendor(childComplexity), true
 
 	case "Query.getReviews":
 		if e.complexity.Query.GetReviews == nil {
@@ -322,7 +369,15 @@ var sources = []*ast.Source{
 
 type AssociatedReview{
   token: String
+  product: Product
   reviews: [Review]
+}
+
+type Product {
+  Name: String!
+  Manufacturer: String!
+  Model: String!
+  Vendor: String!
 }
 
 type Review {
@@ -560,6 +615,38 @@ func (ec *executionContext) _AssociatedReview_token(ctx context.Context, field g
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _AssociatedReview_product(ctx context.Context, field graphql.CollectedField, obj *model.AssociatedReview) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "AssociatedReview",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AssociatedReview().Product(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Product)
+	fc.Result = res
+	return ec.marshalOProduct2ᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _AssociatedReview_reviews(ctx context.Context, field graphql.CollectedField, obj *model.AssociatedReview) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -786,6 +873,146 @@ func (ec *executionContext) _Mutation_addOffset(ctx context.Context, field graph
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().AddOffset(rctx, args["input"].(*model.ReviewInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_Name(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Name, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_Manufacturer(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Manufacturer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_Model(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Model, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Product_Vendor(ctx context.Context, field graphql.CollectedField, obj *model.Product) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Product",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Vendor, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2480,6 +2707,17 @@ func (ec *executionContext) _AssociatedReview(ctx context.Context, sel ast.Selec
 			out.Values[i] = graphql.MarshalString("AssociatedReview")
 		case "token":
 			out.Values[i] = ec._AssociatedReview_token(ctx, field, obj)
+		case "product":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AssociatedReview_product(ctx, field, obj)
+				return res
+			})
 		case "reviews":
 			out.Values[i] = ec._AssociatedReview_reviews(ctx, field, obj)
 		default:
@@ -2530,6 +2768,48 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "addOffset":
 			out.Values[i] = ec._Mutation_addOffset(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var productImplementors = []string{"Product"}
+
+func (ec *executionContext) _Product(ctx context.Context, sel ast.SelectionSet, obj *model.Product) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, productImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Product")
+		case "Name":
+			out.Values[i] = ec._Product_Name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Manufacturer":
+			out.Values[i] = ec._Product_Manufacturer(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Model":
+			out.Values[i] = ec._Product_Model(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "Vendor":
+			out.Values[i] = ec._Product_Vendor(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3274,6 +3554,13 @@ func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel as
 		return graphql.Null
 	}
 	return graphql.MarshalFloat(*v)
+}
+
+func (ec *executionContext) marshalOProduct2ᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v *model.Product) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Product(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalOReview2ᚕᚖgithubᚗcomᚋkalradevᚋreviewᚑcentralᚋgraphqlᚑserverᚋgraphᚋmodelᚐReview(ctx context.Context, sel ast.SelectionSet, v []*model.Review) graphql.Marshaler {

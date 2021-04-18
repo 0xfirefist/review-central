@@ -5,7 +5,15 @@ type Query {
 
 type AssociatedReview{
   token: String
+  product: Product
   reviews: [Review]
+}
+
+type Product {
+  name: String!
+  manufacturer: String!
+  model: String!
+  vendor: String!
 }
 
 type Review {

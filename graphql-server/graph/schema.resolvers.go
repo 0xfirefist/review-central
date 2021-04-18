@@ -22,6 +22,15 @@ import (
 	"github.com/kalradev/review-central/pkg/jwt"
 )
 
+func (r *associatedReviewResolver) Product(ctx context.Context, obj *model.AssociatedReview) (*model.Product, error) {
+	return &model.Product{
+		Name:         "Moong Daal",
+		Manufacturer: "Haldiram",
+		Model:        "1.2",
+		Vendor:       "Amazon",
+	}, nil
+}
+
 func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (string, error) {
 	user := users.User{
 		FirstName:  *input.FirstName,
@@ -279,11 +288,17 @@ func (r *queryResolver) User(ctx context.Context) (*model.User, error) {
 	// return nil, nil
 }
 
+// AssociatedReview returns generated.AssociatedReviewResolver implementation.
+func (r *Resolver) AssociatedReview() generated.AssociatedReviewResolver {
+	return &associatedReviewResolver{r}
+}
+
 // Mutation returns generated.MutationResolver implementation.
 func (r *Resolver) Mutation() generated.MutationResolver { return &mutationResolver{r} }
 
 // Query returns generated.QueryResolver implementation.
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 
+type associatedReviewResolver struct{ *Resolver }
 type mutationResolver struct{ *Resolver }
 type queryResolver struct{ *Resolver }

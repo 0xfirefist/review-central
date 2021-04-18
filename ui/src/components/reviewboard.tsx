@@ -18,50 +18,50 @@ import { gql, useQuery, useReactiveVar } from '@apollo/client';
 import moment from 'moment';
 import AppBar from './appbar'
 
-const FakeProducts = [
-  {
-    Name: "OnePlus",
-    Manufacturer: "China",
-    Model: "6",
-    Vendor: "Amazon"
-  },
-  {
-    Name: "Nokia 7 Plus",
-    Manufacturer: "HMT",
-    Model: "7 Plus",
-    Vendor: "Flipkart"
-  },
-  {
-    Name: "iphone",
-    Manufacturer: "iphone",
-    Model: "6s",
-    Vendor: "Amazon"
-  },
-  {
-    Name: "Boiler",
-    Manufacturer: "Philips",
-    Model: " 7.1",
-    Vendor: "Flipkart"
-  },
-  {
-    Name: "JBL Flip",
-    Manufacturer: "JBL",
-    Model: "5.0",
-    Vendor: "Amazon"
-  },
-  {
-    Name: "ppoprnings",
-    Manufacturer: "BAlaji",
-    Model: "1.0",
-    Vendor: "Paytm"
-  },
-  {
-    Name: "Moong Daal",
-    Manufacturer: "Haldiram",
-    Model: "1.2",
-    Vendor: "Amazon"
-  }
-]
+// const FakeProducts = [
+//   {
+//     Name: "OnePlus",
+//     Manufacturer: "China",
+//     Model: "6",
+//     Vendor: "Amazon"
+//   },
+//   {
+//     Name: "Nokia 7 Plus",
+//     Manufacturer: "HMT",
+//     Model: "7 Plus",
+//     Vendor: "Flipkart"
+//   },
+//   {
+//     Name: "iphone",
+//     Manufacturer: "iphone",
+//     Model: "6s",
+//     Vendor: "Amazon"
+//   },
+//   {
+//     Name: "Boiler",
+//     Manufacturer: "Philips",
+//     Model: " 7.1",
+//     Vendor: "Flipkart"
+//   },
+//   {
+//     Name: "JBL Flip",
+//     Manufacturer: "JBL",
+//     Model: "5.0",
+//     Vendor: "Amazon"
+//   },
+//   {
+//     Name: "ppoprnings",
+//     Manufacturer: "BAlaji",
+//     Model: "1.0",
+//     Vendor: "Paytm"
+//   },
+//   {
+//     Name: "Moong Daal",
+//     Manufacturer: "Haldiram",
+//     Model: "1.2",
+//     Vendor: "Amazon"
+//   }
+// ]
 
 const GETREVIEWS = gql`
   query GetReviews($currentUser: Boolean!) {
@@ -73,6 +73,12 @@ const GETREVIEWS = gql`
           rating
           review
           timestamp
+        }
+        product {
+          name
+          manufacturer
+          model
+          vendor
         }
     }
   }
@@ -99,7 +105,7 @@ function Row(props) {
 
   // console.log(reviews)
 
-  var randNum = Math.floor(Math.random() * 7);
+  // var randNum = Math.floor(Math.random() * 7);
   // var randNum = 0;
 
 
@@ -112,16 +118,16 @@ function Row(props) {
           </IconButton>
         </TableCell>
         <TableCell component="th" scope="row">
-          {FakeProducts[randNum].Name}
+          {associatedReview.product.Name}
         </TableCell>
         <TableCell component="th" scope="row">
-          {FakeProducts[randNum].Manufacturer}
+          {associatedReview.product.Manufacturer}
         </TableCell>
         <TableCell component="th" scope="row">
-          {FakeProducts[randNum].Model}
+          {associatedReview.product.Model}
         </TableCell>
         <TableCell component="th" scope="row">
-          {FakeProducts[randNum].Vendor}
+          {associatedReview.product.Vendor}
         </TableCell>
       </TableRow>
       <TableRow>
