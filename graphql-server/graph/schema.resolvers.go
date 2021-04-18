@@ -198,11 +198,11 @@ func (r *queryResolver) GetReviews(ctx context.Context, input *model.UserInfo) (
 		}
 	}
 
-	for _, token := range tokens {
+	for i := range tokens {
 		var reviews []*model.Review
 
 		// get hash of every token
-		hashes, err := contracts.Get(token)
+		hashes, err := contracts.Get(tokens[i])
 		if err != nil {
 			return nil, errors.New("Coudn't get ipfs hash")
 		}
@@ -217,15 +217,17 @@ func (r *queryResolver) GetReviews(ctx context.Context, input *model.UserInfo) (
 			json.NewDecoder(r.Body).Decode(&rev)
 			reviews = append(reviews, &rev)
 		}
-
+		fmt.Println(&tokens[i])
+		fmt.Println(tokens[i])
 		// get product details
-		productDetails,err := users.GetProduct(token)
+		productDetails,err := users.GetProduct(tokens[i])
 		if err!=nil {
-			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token,
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &tokens[i],
 				Reviews: reviews,
 			}) 
 		} else {
-			associatedReviews = append(associatedReviews, &model.AssociatedReview{Token: &token,
+			associatedReviews = append(associatedReviews, &model.AssociatedReview{
+				Token: &tokens[i],
 				Reviews: reviews,
 				Product: &model.Product{
 					Name:         productDetails[0],
