@@ -19,6 +19,7 @@ import moment from 'moment';
 import Container from '@material-ui/core/Container';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from './appbar'
+import LinearProgress from '@material-ui/core/LinearProgress';
 
 const GETREVIEWS = gql`
   query GetReviews($currentUser: Boolean!) {
@@ -144,7 +145,7 @@ function ReviewBoard(props) {
     return (
       <div>
         <AppBar />
-        <div>Loading ...</div>
+        <LinearProgress />
       </div>
     )
   }
